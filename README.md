@@ -10,8 +10,7 @@ demo page. Every component is plain, inspectable JavaScript once compiled —
 no framework runtime, no virtual DOM, no build step required to *use* it.
 
 > **Status:** this is an independent, community-built library written *using*
-> Devabhāṣā. It is not part of, endorsed by, or published by the Devabhāṣā
-> project itself. See [Credits](#credits).
+> Devabhāṣā.
 
 ---
 
