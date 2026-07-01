@@ -275,5 +275,4 @@ name aliases. Read the script if you want to change what gets bundled.
 
 ## License
 
-MIT — see [LICENSE](./LICENSE). Update the copyright holder there with your
-own name/organization before publishing under your own account.
+MIT
