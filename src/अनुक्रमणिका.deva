@@ -1,0 +1,20 @@
+# अनुक्रमणिका.deva — library entry point. Pulls every public export from
+# all four modules into one bundle graph (deduplicated by the bundler),
+# for dist/devarupa.browser.js to expose as a single global namespace.
+# Not meant to be imported itself — see README for usage in both
+# Devabhāṣā projects (import the src/*.deva files directly) and plain
+# JS/HTML projects (use dist/devarupa.browser.js).
+
+आयात {
+    वर्णपटः, प्रकाशः, रात्रिः, स्वर्णिमः, हिमः, विषयलागू,
+    अन्तरालः, कोणाः, छायाः, अक्षरकुलम्, वर्णप्राप्ति
+} आ "./अभिकल्पनम्"।
+
+आयात {
+    पीडकम्, चिह्नम्, पत्रकम्, सूचनापट्टी, आदानक्षेत्रम्, परिवर्तकम्,
+    प्रगतिपट्टी, अवतारः, विभाजकः, चक्रिका, टैबसमूहः, विधिवातायनम्, उपकरणसूचना
+} आ "./घटकाः"।
+
+आयात { बहुपाठक्षेत्रम्, चयनक्षेत्रम्, अङ्कितपेटिका, विकल्पचक्रम्, सर्पिणी, त्रुटिपाठः, प्रपत्रम् } आ "./प्रपत्राणि"।
+
+आयात { दण्डारेखाचित्रम्, रेखाचित्रम्, वृत्तचित्रम्, सांख्यिकाकार्डम् } आ "./आरेखाः"।

@@ -1,0 +1,100 @@
+# अभिकल्पनम्.deva — design tokens for देवरूप (Devarūpa).
+#
+# Theming via a CSS custom-property cascade (the approach Meta's Astryx
+# design system uses): a theme is just a set of CSS variable values on
+# :root. Components reference var(--db-…) strings, never literal colors,
+# so switching themes means calling विषयलागू() once — no component
+# rebuild, no भाव/दृश्य involved, every existing node restyles itself
+# instantly because the browser recomputes var() on the next paint.
+
+निर्यात नियत वर्णपटः = कोष{
+    पृष्ठः: "var(--db-page)",                   पृष्ठतलम्: "var(--db-surface)",
+    पाठ्यः: "var(--db-text)",                   पाठ्यमृदु: "var(--db-text-muted)",
+    सीमा: "var(--db-border)",
+    प्राथमिकः: "var(--db-primary)",              प्राथमिकगहनः: "var(--db-primary-dark)",
+    द्वितीयकः: "var(--db-secondary)",            द्वितीयकगहनः: "var(--db-secondary-dark)",
+    सफलता: "var(--db-success)",                  चेतावनी: "var(--db-warning)",
+    संकटः: "var(--db-danger)",                   सूचना: "var(--db-info)",
+    श्वेतः: "var(--db-on-accent)"
+}।
+
+# ===================================================================
+# Named themes — each a plain object of *resolved* hex values. Adding
+# a new theme is just adding a new entry here; no component changes.
+# ===================================================================
+निर्यात नियत प्रकाशः = कोष{    # "Light" — the default
+    page: "#f8fafc", surface: "#ffffff", text: "#0f172a", textMuted: "#64748b",
+    border: "#e2e8f0", primary: "#6366f1", primaryDark: "#4338ca",
+    secondary: "#64748b", secondaryDark: "#475569", success: "#10b981",
+    warning: "#f59e0b", danger: "#ef4444", info: "#3b82f6", onAccent: "#ffffff"
+}।
+
+निर्यात नियत रात्रिः = कोष{    # "Night" — dark mode
+    page: "#0f172a", surface: "#1e293b", text: "#f1f5f9", textMuted: "#94a3b8",
+    border: "#334155", primary: "#818cf8", primaryDark: "#6366f1",
+    secondary: "#475569", secondaryDark: "#334155", success: "#34d399",
+    warning: "#fbbf24", danger: "#f87171", info: "#60a5fa", onAccent: "#0f172a"
+}।
+
+निर्यात नियत स्वर्णिमः = कोष{    # "Golden" — warm amber/cream
+    page: "#fdf6ec", surface: "#fffaf2", text: "#3d2c1e", textMuted: "#8a6d51",
+    border: "#ecddc4", primary: "#c2792d", primaryDark: "#9c5e1f",
+    secondary: "#8a6d51", secondaryDark: "#6b5440", success: "#7c9a3c",
+    warning: "#d68a1f", danger: "#c0452c", info: "#4f86a8", onAccent: "#fffaf2"
+}।
+
+निर्यात नियत हिमः = कोष{    # "Frost" — cool slate/ice blue
+    page: "#eef4f8", surface: "#ffffff", text: "#1c2b36", textMuted: "#5c7a8a",
+    border: "#cfe1ea", primary: "#1f8fc4", primaryDark: "#166f9b",
+    secondary: "#5c7a8a", secondaryDark: "#3e5965", success: "#1f9e7d",
+    warning: "#d99a1b", danger: "#cf4452", info: "#2f6fb0", onAccent: "#ffffff"
+}।
+
+# विषयलागू — apply a theme by writing CSS custom properties onto :root.
+# Every component restyles on the next paint; nothing is reconstructed.
+निर्यात कार्य विषयलागू (वर्णाः) {
+    चर मूलम् = document.documentElement।
+    मूलम्.style.setProperty("--db-page", वर्णाः.page)।
+    मूलम्.style.setProperty("--db-surface", वर्णाः.surface)।
+    मूलम्.style.setProperty("--db-text", वर्णाः.text)।
+    मूलम्.style.setProperty("--db-text-muted", वर्णाः.textMuted)।
+    मूलम्.style.setProperty("--db-border", वर्णाः.border)।
+    मूलम्.style.setProperty("--db-primary", वर्णाः.primary)।
+    मूलम्.style.setProperty("--db-primary-dark", वर्णाः.primaryDark)।
+    मूलम्.style.setProperty("--db-secondary", वर्णाः.secondary)।
+    मूलम्.style.setProperty("--db-secondary-dark", वर्णाः.secondaryDark)।
+    मूलम्.style.setProperty("--db-success", वर्णाः.success)।
+    मूलम्.style.setProperty("--db-warning", वर्णाः.warning)।
+    मूलम्.style.setProperty("--db-danger", वर्णाः.danger)।
+    मूलम्.style.setProperty("--db-info", वर्णाः.info)।
+    मूलम्.style.setProperty("--db-on-accent", वर्णाः.onAccent)।
+}
+
+निर्यात नियत अन्तरालः = कोष{
+    अतिलघु: "4px", लघु: "8px", मध्यम: "16px", बृहत्: "24px", अतिबृहत्: "36px"
+}।
+
+निर्यात नियत कोणाः = कोष{
+    लघु: "6px", मध्यम: "10px", बृहत्: "16px", पूर्णम्: "999px"
+}।
+
+निर्यात नियत छायाः = कोष{
+    लघु: "0 1px 3px rgba(15,23,42,0.10)",
+    मध्यम: "0 6px 18px rgba(15,23,42,0.12)",
+    बृहत्: "0 18px 42px rgba(15,23,42,0.18)"
+}।
+
+निर्यात नियत अक्षरकुलम् = "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"।
+
+# वर्णप्राप्ति — semantic variant name ("प्राथमिक","सफलता",…) to its
+# {मुख्यः, गहनः, पाठ्यः} CSS-var triple. Unchanged signature — components
+# calling this don't need to know tokens became var() references.
+निर्यात कार्य वर्णप्राप्ति (वर्गः) {
+    यदि (वर्गः == "प्राथमिक") { फलम् कोष{ मुख्यः: वर्णपटः.प्राथमिकः, गहनः: वर्णपटः.प्राथमिकगहनः, पाठ्यः: वर्णपटः.श्वेतः }। }
+    यदि (वर्गः == "द्वितीयक")  { फलम् कोष{ मुख्यः: वर्णपटः.द्वितीयकः, गहनः: वर्णपटः.द्वितीयकगहनः, पाठ्यः: वर्णपटः.श्वेतः }। }
+    यदि (वर्गः == "सफलता")    { फलम् कोष{ मुख्यः: वर्णपटः.सफलता, गहनः: वर्णपटः.सफलता, पाठ्यः: वर्णपटः.श्वेतः }। }
+    यदि (वर्गः == "चेतावनी")  { फलम् कोष{ मुख्यः: वर्णपटः.चेतावनी, गहनः: वर्णपटः.चेतावनी, पाठ्यः: वर्णपटः.श्वेतः }। }
+    यदि (वर्गः == "संकट")     { फलम् कोष{ मुख्यः: वर्णपटः.संकटः, गहनः: वर्णपटः.संकटः, पाठ्यः: वर्णपटः.श्वेतः }। }
+    यदि (वर्गः == "सूचना")    { फलम् कोष{ मुख्यः: वर्णपटः.सूचना, गहनः: वर्णपटः.सूचना, पाठ्यः: वर्णपटः.श्वेतः }। }
+    फलम् कोष{ मुख्यः: वर्णपटः.प्राथमिकः, गहनः: वर्णपटः.प्राथमिकगहनः, पाठ्यः: वर्णपटः.श्वेतः }।
+}

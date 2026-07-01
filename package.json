@@ -1,0 +1,53 @@
+{
+  "name": "devarupa",
+  "version": "0.1.0",
+  "description": "देवरूप — a UI/UX component library (buttons, forms, charts, theming) written in Devabhāṣā, the Sanskrit-syntax language that transpiles to JavaScript.",
+  "type": "module",
+  "main": "./dist/devarupa.browser.js",
+  "files": [
+    "src",
+    "dist",
+    "examples",
+    "scripts",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": "./dist/devarupa.browser.js",
+    "./src/*": "./src/*.deva",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "node scripts/build-dist.mjs"
+  },
+  "peerDependencies": {
+    "devabhasha": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "devabhasha": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "sanskrit",
+    "devanagari",
+    "devabhasha",
+    "ui-library",
+    "component-library",
+    "design-system",
+    "forms",
+    "charts",
+    "data-visualization",
+    "theming",
+    "css-variables"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/pariharshyamu/Devarupa",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pariharshyamu/Devarupa"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
