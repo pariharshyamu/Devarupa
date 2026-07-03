@@ -1,5 +1,5 @@
 # अनुक्रमणिका.deva — library entry point. Pulls every public export from
-# all four modules into one bundle graph (deduplicated by the bundler),
+# all seven modules into one bundle graph (deduplicated by the bundler),
 # for dist/devarupa.browser.js to expose as a single global namespace.
 # Not meant to be imported itself — see README for usage in both
 # Devabhāṣā projects (import the src/*.deva files directly) and plain
@@ -18,3 +18,16 @@
 आयात { बहुपाठक्षेत्रम्, चयनक्षेत्रम्, अङ्कितपेटिका, विकल्पचक्रम्, सर्पिणी, त्रुटिपाठः, प्रपत्रम् } आ "./प्रपत्राणि"।
 
 आयात { दण्डारेखाचित्रम्, रेखाचित्रम्, वृत्तचित्रम्, सांख्यिकाकार्डम् } आ "./आरेखाः"।
+
+# ---- newer modules: Devabhāṣā stdlib helpers + validation + data table ----
+
+आयात {
+    योगः, महत्तमम्, न्यूनतमम्, गणय, अद्वितीयम्, परिसरः, खण्डशः, क्रमय,
+    प्रथमाक्षरोच्च, आवर्तय, रिक्तः, अन्तर्भवति, व्युत्क्रमः, वामपूरणम्
+} आ "./उपयोगिता"।
+
+आयात {
+    आवश्यकः, न्यूनदैर्घ्यम्, अधिकदैर्घ्यम्, संख्यामात्रम्, विद्युत्पत्रम्, प्रमाणय, प्रमाणितक्षेत्रम्
+} आ "./प्रमाणनम्"।
+
+आयात { सारणी, क्षणिकसूचना } आ "./सारणी"।
