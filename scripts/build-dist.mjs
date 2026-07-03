@@ -110,6 +110,17 @@ window.Devarupa = Object.assign({}, ${slots.join(', ')});
 })();
 `;
 
+const bundleOut = code + merged;
+
 const outPath = join(root, 'dist/devarupa.browser.js');
-writeFileSync(outPath, code + merged);
+writeFileSync(outPath, bundleOut);
+
+// Keep a copy next to the docs site (docs/index.html loads it with a relative
+// path) so GitHub Pages can serve the documentation self-contained, whether it
+// publishes the repo root or the /docs folder.
+mkdirSync(join(root, 'docs'), { recursive: true });
+const docsCopy = join(root, 'docs/devarupa.browser.js');
+writeFileSync(docsCopy, bundleOut);
+
 console.log('Built', outPath, '—', slots.length, 'modules,', devanagariNames.length, 'exports.');
+console.log('Copied', docsCopy);
