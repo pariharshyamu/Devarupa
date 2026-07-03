@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>देवरूप · Devarūpa — Documentation & live demo</title>
+<meta name="description" content="Devarūpa — a Sanskrit-authored UI component library (buttons, forms, charts, data table, toasts, theming) written in Devabhāṣā. Live, interactive documentation.">
+<style>
+  /* The docs chrome styles itself with the SAME CSS custom properties the
+     library sets (--db-*). विषयलागू() writes these onto :root, so switching a
+     theme reflows the whole page — chrome and component previews alike. The
+     defaults below are the "प्रकाशः" (light) theme, so the page is styled
+     before the bundle's JS runs. */
+  :root {
+    --db-page:#f8fafc; --db-surface:#ffffff; --db-text:#0f172a; --db-text-muted:#64748b;
+    --db-border:#e2e8f0; --db-primary:#6366f1; --db-primary-dark:#4338ca;
+    --db-secondary:#64748b; --db-secondary-dark:#475569; --db-success:#10b981;
+    --db-warning:#f59e0b; --db-danger:#ef4444; --db-info:#3b82f6; --db-on-accent:#ffffff;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sidebar: 250px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin:0; font-family:var(--sans); background:var(--db-page); color:var(--db-text);
+    line-height:1.6; transition:background-color .2s ease, color .2s ease;
+    -webkit-font-smoothing:antialiased;
+  }
+  a { color:var(--db-primary); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  code { font-family:var(--mono); font-size:.88em; }
+
+  /* ---- top bar ---- */
+  header.topbar {
+    position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:16px;
+    padding:12px 22px; background:color-mix(in srgb, var(--db-surface) 88%, transparent);
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--db-border);
+  }
+  .brand { font-size:19px; font-weight:800; letter-spacing:-.01em; white-space:nowrap; }
+  .brand span { color:var(--db-primary); }
+  .topbar .spacer { flex:1; }
+  .theme-picker { display:flex; gap:8px; align-items:center; }
+  .swatch { width:24px; height:24px; border-radius:999px; cursor:pointer; border:2px solid var(--db-surface);
+    box-shadow:0 0 0 1px var(--db-border); transition:transform .12s ease; }
+  .swatch:hover { transform:scale(1.15); }
+  .ghlink { font-size:13px; font-weight:600; color:var(--db-text-muted); }
+
+  /* ---- layout ---- */
+  .layout { display:grid; grid-template-columns:var(--sidebar) 1fr; align-items:start; }
+  nav.side {
+    position:sticky; top:57px; height:calc(100vh - 57px); overflow-y:auto;
+    padding:22px 14px; border-right:1px solid var(--db-border);
+  }
+  nav.side .group { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.07em;
+    color:var(--db-text-muted); margin:16px 10px 6px; }
+  nav.side a { display:block; padding:6px 10px; border-radius:8px; color:var(--db-text-muted);
+    font-size:14px; font-weight:500; }
+  nav.side a:hover { background:color-mix(in srgb, var(--db-primary) 10%, transparent); color:var(--db-text); text-decoration:none; }
+  nav.side a.active { background:color-mix(in srgb, var(--db-primary) 14%, transparent); color:var(--db-primary); font-weight:600; }
+
+  main { padding:34px 40px 120px; max-width:900px; margin:0 auto; width:100%; }
+
+  section { padding-top:26px; margin-top:26px; scroll-margin-top:70px; }
+  section:first-of-type { margin-top:0; border:0; }
+  h2.sec { font-size:26px; font-weight:800; letter-spacing:-.02em; margin:0 0 4px; }
+  .sec-sub { color:var(--db-text-muted); margin:0 0 18px; font-size:15px; }
+  h3.sub { font-size:16px; font-weight:700; margin:26px 0 10px; }
+  p { margin:0 0 14px; }
+  p.lead { font-size:15px; color:var(--db-text-muted); }
+
+  /* ---- hero ---- */
+  .hero {
+    border-radius:20px; padding:44px 38px; color:#fff; margin-bottom:8px;
+    background:linear-gradient(135deg, var(--db-primary), var(--db-primary-dark));
+    box-shadow:0 18px 42px color-mix(in srgb, var(--db-primary) 34%, transparent);
+  }
+  .hero h1 { font-size:40px; margin:0 0 8px; font-weight:800; letter-spacing:-.02em; }
+  .hero p { font-size:17px; opacity:.94; margin:0 0 20px; max-width:60ch; }
+  .hero .pills { display:flex; gap:8px; flex-wrap:wrap; }
+  .hero .pill { background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3);
+    padding:5px 12px; border-radius:999px; font-size:13px; font-weight:600; }
+
+  .features { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; margin:22px 0; }
+  .feature { background:var(--db-surface); border:1px solid var(--db-border); border-radius:14px; padding:16px 18px; }
+  .feature h4 { margin:0 0 4px; font-size:15px; }
+  .feature p { margin:0; font-size:13.5px; color:var(--db-text-muted); }
+
+  /* ---- example card (preview + code) ---- */
+  .example { border:1px solid var(--db-border); border-radius:14px; overflow:hidden; margin:14px 0; background:var(--db-surface); }
+  .preview { padding:22px; display:flex; flex-wrap:wrap; gap:14px; align-items:flex-start; }
+  .preview.col { flex-direction:column; }
+  .codewrap { position:relative; border-top:1px solid var(--db-border); }
+  pre.code { margin:0; padding:16px 18px; overflow-x:auto; font-family:var(--mono); font-size:13px;
+    line-height:1.55; background:color-mix(in srgb, var(--db-text) 4%, var(--db-surface)); color:var(--db-text); }
+  .copybtn { position:absolute; top:8px; right:8px; font-family:var(--sans); font-size:11px; font-weight:600;
+    padding:4px 9px; border-radius:7px; cursor:pointer; color:var(--db-text-muted);
+    background:var(--db-surface); border:1px solid var(--db-border); }
+  .copybtn:hover { color:var(--db-primary); border-color:var(--db-primary); }
+
+  pre.block { border:1px solid var(--db-border); border-radius:12px; padding:16px 18px; overflow-x:auto;
+    font-family:var(--mono); font-size:13px; line-height:1.6; background:color-mix(in srgb, var(--db-text) 4%, var(--db-surface)); margin:0 0 16px; }
+
+  .note { border-left:4px solid var(--db-info); background:color-mix(in srgb, var(--db-info) 9%, transparent);
+    padding:12px 16px; border-radius:0 10px 10px 0; font-size:14px; margin:16px 0; }
+
+  /* ---- API tables ---- */
+  .tablewrap { overflow-x:auto; border:1px solid var(--db-border); border-radius:12px; margin:12px 0 22px; }
+  table.api { width:100%; border-collapse:collapse; font-size:13.5px; min-width:520px; }
+  table.api th, table.api td { text-align:left; padding:9px 13px; border-bottom:1px solid var(--db-border); vertical-align:top; }
+  table.api thead th { background:color-mix(in srgb, var(--db-text) 4%, var(--db-surface)); font-size:12px;
+    text-transform:uppercase; letter-spacing:.04em; color:var(--db-text-muted); }
+  table.api tr:last-child td { border-bottom:0; }
+  table.api td code, table.api th code { color:var(--db-primary); font-weight:600; }
+  table.api td:nth-child(2) code { color:var(--db-text-muted); font-weight:500; }
+
+  footer { border-top:1px solid var(--db-border); padding:26px 40px; color:var(--db-text-muted); font-size:13px; text-align:center; }
+
+  /* ---- responsive ---- */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns:1fr; }
+    nav.side { position:static; height:auto; width:100%; border-right:0; border-bottom:1px solid var(--db-border);
+      display:flex; flex-wrap:wrap; gap:2px 4px; padding:10px 14px; }
+    nav.side .group { width:100%; margin:8px 8px 2px; }
+    nav.side a { padding:5px 9px; }
+    main { padding:24px 18px 90px; }
+    .hero { padding:32px 22px; } .hero h1 { font-size:30px; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">देवरूप <span>· Devarūpa</span></div>
+  <div class="spacer"></div>
+  <div class="theme-picker" id="themePicker" title="Switch theme (re-themes the whole page)"></div>
+  <a class="ghlink" href="https://github.com/pariharshyamu/Devarupa" target="_blank" rel="noopener">GitHub ↗</a>
+</header>
+
+<div class="layout">
+  <nav class="side" id="nav"></nav>
+  <main id="main"></main>
+</div>
+
+<footer>
+  देवरूप · Devarūpa — an independent, community-built UI library written in
+  <a href="https://www.npmjs.com/package/devabhasha">Devabhāṣā</a>. MIT licensed.
+</footer>
+
+<!-- The actual library. Everything below renders with THIS bundle, live. -->
+<script src="./devarupa.browser.js"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.Devarupa;
+  var main = document.getElementById('main');
+  var nav  = document.getElementById('nav');
+
+  // ---------- helpers ----------
+  function elm(tag, cls, txt) { var n = document.createElement(tag); if (cls) n.className = cls; if (txt != null) n.textContent = txt; return n; }
+  function mount(t, x) {
+    if (x == null) return;
+    if (Array.isArray(x)) { x.forEach(function (i) { mount(t, i); }); return; }
+    if (x instanceof Node) { t.append(x); return; }
+    if (x['अंशः'] instanceof Node) { t.append(x['अंशः']); return; }
+    t.append(document.createTextNode(String(x)));
+  }
+  var navGroups = [];
+  function section(id, title, subtitle, group) {
+    var s = elm('section'); s.id = id;
+    s.append(elm('h2', 'sec', title));
+    if (subtitle) s.append(elm('p', 'sec-sub', subtitle));
+    main.append(s);
+    navGroups.push({ id: id, title: title, group: group || 'Components' });
+    return s;
+  }
+  function sub(host, txt) { host.append(elm('h3', 'sub', txt)); }
+  function para(host, html) { var p = elm('p'); p.innerHTML = html; host.append(p); return p; }
+  function block(host, code) { var pre = elm('pre', 'block'); pre.textContent = code; host.append(pre); }
+  function note(host, html) { var n = elm('div', 'note'); n.innerHTML = html; host.append(n); }
+  // a live preview + its source, side by side
+  function example(host, code, factory, opts) {
+    var card = elm('div', 'example');
+    var prev = elm('div', 'preview' + (opts && opts.col ? ' col' : ''));
+    try { mount(prev, factory()); } catch (e) { prev.append(elm('span', null, '⚠ ' + e.message)); }
+    var wrap = elm('div', 'codewrap');
+    var copy = elm('button', 'copybtn', 'copy');
+    copy.onclick = function () {
+      if (navigator.clipboard) navigator.clipboard.writeText(code);
+      copy.textContent = 'copied!'; setTimeout(function () { copy.textContent = 'copy'; }, 1200);
+    };
+    var pre = elm('pre', 'code'); pre.textContent = code;
+    wrap.append(copy, pre);
+    card.append(prev, wrap);
+    host.append(card);
+  }
+  function apiTable(host, headers, rows) {
+    var w = elm('div', 'tablewrap'); var t = elm('table', 'api');
+    var thead = elm('thead'); var htr = elm('tr');
+    headers.forEach(function (h) { htr.append(elm('th', null, h)); });
+    thead.append(htr); t.append(thead);
+    var tb = elm('tbody');
+    rows.forEach(function (r) {
+      var tr = elm('tr');
+      r.forEach(function (c) { var td = elm('td'); td.innerHTML = c; tr.append(td); });
+      tb.append(tr);
+    });
+    t.append(tb); w.append(t); host.append(w);
+  }
+
+  // ---------- theme picker ----------
+  var THEMES = [
+    { key: 'प्रकाशः', label: 'Light',  obj: D['प्रकाशः'] },
+    { key: 'रात्रिः', label: 'Night',  obj: D['रात्रिः'] },
+    { key: 'स्वर्णिमः', label: 'Golden', obj: D['स्वर्णिमः'] },
+    { key: 'हिमः',   label: 'Frost',  obj: D['हिमः'] }
+  ];
+  var picker = document.getElementById('themePicker');
+  THEMES.forEach(function (t) {
+    var sw = elm('span', 'swatch'); sw.title = t.label + ' theme';
+    sw.style.background = t.obj.primary;
+    sw.onclick = function () { D['विषयलागू'](t.obj); };
+    picker.append(sw);
+  });
+  D['विषयलागू'](D['प्रकाशः']); // default
+
+  // ===================================================================
+  // OVERVIEW
+  // ===================================================================
+  (function () {
+    var s = section('overview', 'Overview', null, 'Getting started');
+    var hero = elm('div', 'hero');
+    hero.innerHTML =
+      '<h1>A UI library, written in Sanskrit.</h1>' +
+      '<p>Devarūpa is a component library — buttons, forms, charts, a sortable data table, ' +
+      'toasts, and theming — authored in <b>Devabhāṣā</b> and compiled to plain, framework-free ' +
+      'JavaScript. No virtual DOM, no runtime, no build step required to <i>use</i> it.</p>' +
+      '<div class="pills"><span class="pill">58 exports</span><span class="pill">4 themes</span>' +
+      '<span class="pill">Zero dependencies</span><span class="pill">~50&nbsp;KB bundle</span>' +
+      '<span class="pill">MIT</span></div>';
+    s.append(hero);
+
+    var f = elm('div', 'features');
+    [
+      ['🎨 Theme cascade', 'Themes are CSS custom properties on :root. Switch one and every mounted node restyles on the next paint — no rebuild.'],
+      ['🧩 Plain DOM', 'Every component is a function that returns a real DOM node. Append it yourself; inspect it in devtools.'],
+      ['📊 Charts', 'Bar, line, and pie/donut charts as real SVG — fills resolve theme colors too.'],
+      ['🗂️ Data table', 'Click-to-sort, paginated, powered by Devabhāṣā stdlib helpers (क्रमय, खण्डशः).'],
+      ['✅ Validation', 'Form validators on the language\'s native परिणाम (Result) protocol.'],
+      ['🔔 Toasts', 'Auto-dismissing notifications driven by the कालचक्र timer.']
+    ].forEach(function (x) {
+      var c = elm('div', 'feature'); c.append(elm('h4', null, x[0]), elm('p', null, x[1])); f.append(c);
+    });
+    s.append(f);
+    note(s, 'Everything on this page is rendered by the real library bundle loaded above. ' +
+      'Use the swatches in the header to re-theme the entire page — chrome and previews together.');
+  })();
+
+  // ===================================================================
+  // INSTALL / QUICK START
+  // ===================================================================
+  (function () {
+    var s = section('quickstart', 'Quick start', 'Two ways to use it: a pre-built bundle for plain JS/HTML, or the Devabhāṣā source.', 'Getting started');
+    sub(s, 'Plain JS / HTML — no Devabhāṣā toolchain');
+    block(s,
+'<script src="devarupa.browser.js"><\/script>\n' +
+'<script>\n' +
+'  // Apply a theme (sets CSS custom properties on :root)\n' +
+'  Devarupa.विषयलागू(Devarupa.प्रकाशः);   // or .रात्रिः / .स्वर्णिमः / .हिमः\n\n' +
+'  const button = Devarupa.पीडकम्("Click me", () => alert("नमस्ते!"),\n' +
+'                                { वर्गः: "प्राथमिक" });\n' +
+'  document.body.appendChild(button);\n' +
+'<\/script>');
+    para(s, 'Every export is available under both its Devanagari name and a transliterated ASCII alias — ' +
+      '<code>Devarupa.पीडकम्(…)</code> or <code>Devarupa.piiddakam(…)</code>.');
+
+    sub(s, 'From a Devabhāṣā project');
+    block(s,
+'आयात { पीडकम्, विषयलागू, प्रकाशः } आ "devarupa/src/घटकाः"।\n\n' +
+'विषयलागू(प्रकाशः)।\n' +
+'योजय(पीडकम्("नमस्ते", शून्यम्, कोष{ वर्गः: "प्राथमिक" }))।');
+
+    sub(s, 'Install');
+    block(s, 'npm install devarupa');
+  })();
+
+  // ===================================================================
+  // THEMING
+  // ===================================================================
+  (function () {
+    var s = section('theming', 'Theming', 'A theme is a plain object of colors. विषयलागू() writes them onto :root as --db-* variables; components reference var(--db-…), so a switch never touches a single node.', 'Getting started');
+
+    example(s,
+'// Try each — the whole page (this docs site included) re-themes:\n' +
+'Devarupa.विषयलागू(Devarupa.प्रकाशः);   // Light\n' +
+'Devarupa.विषयलागू(Devarupa.रात्रिः);   // Night\n' +
+'Devarupa.विषयलागू(Devarupa.स्वर्णिमः); // Golden\n' +
+'Devarupa.विषयलागू(Devarupa.हिमः);     // Frost',
+      function () {
+        var row = elm('div'); row.style.display = 'flex'; row.style.gap = '10px'; row.style.flexWrap = 'wrap';
+        THEMES.forEach(function (t) {
+          row.append(D['पीडकम्'](t.label, (function (o) { return function () { D['विषयलागू'](o); }; })(t.obj),
+            { वर्गः: 'बाह्यरेखा', आकारः: 'लघु' }));
+        });
+        return row;
+      });
+
+    sub(s, 'Defining your own theme');
+    block(s,
+'const midnight = {\n' +
+'  page:"#0b1020", surface:"#141b2e", text:"#e6ebf5", textMuted:"#8b96b0",\n' +
+'  border:"#28324b", primary:"#7c9cff", primaryDark:"#5b7bff",\n' +
+'  secondary:"#8b96b0", secondaryDark:"#5b657f", success:"#4ade80",\n' +
+'  warning:"#fbbf24", danger:"#fb7185", info:"#60a5fa", onAccent:"#0b1020"\n' +
+'};\n' +
+'Devarupa.विषयलागू(midnight);');
+
+    sub(s, 'Design tokens');
+    apiTable(s, ['Token', 'ASCII', 'What it is'], [
+      ['<code>वर्णपटः</code>', '<code>varnnapattah</code>', 'Table of <code>var(--db-…)</code> color tokens'],
+      ['<code>प्रकाशः / रात्रिः / स्वर्णिमः / हिमः</code>', '<code>prakaashah / raatrih / …</code>', 'The four built-in theme objects'],
+      ['<code>विषयलागू(वर्णाः)</code>', '<code>vissayalaaguu</code>', 'Apply a theme'],
+      ['<code>अन्तरालः / कोणाः / छायाः</code>', '<code>antaraalah / konnaah / chaayaah</code>', 'Spacing / radius / shadow scales'],
+      ['<code>वर्णप्राप्ति(वर्गः)</code>', '<code>varnnapraapti</code>', 'Variant name → <code>{मुख्यः, गहनः, पाठ्यः}</code>']
+    ]);
+  })();
+
+  // ===================================================================
+  // BUTTONS
+  // ===================================================================
+  (function () {
+    var s = section('buttons', 'Buttons', 'पीडकम्(पाठः, हस्तकः, विकल्पाः) — variants, sizes, states.');
+    example(s,
+'Devarupa.पीडकम्("प्राथमिक", handler, { वर्गः: "प्राथमिक" });\n' +
+'Devarupa.पीडकम्("सफलता",   handler, { वर्गः: "सफलता" });\n' +
+'Devarupa.पीडकम्("बाह्यरेखा", handler, { वर्गः: "बाह्यरेखा" });',
+      function () {
+        var vars = ['प्राथमिक', 'द्वितीयक', 'सफलता', 'चेतावनी', 'संकट', 'बाह्यरेखा', 'भूत'];
+        return vars.map(function (v) { return D['पीडकम्'](v, null, { वर्गः: v }); });
+      });
+    example(s,
+'Devarupa.पीडकम्("लघु",  h, { आकारः: "लघु" });\n' +
+'Devarupa.पीडकम्("मध्यम", h, { आकारः: "मध्यम" });\n' +
+'Devarupa.पीडकम्("बृहत्", h, { आकारः: "बृहत्" });\n' +
+'Devarupa.पीडकम्("निष्क्रिय", h, { निष्क्रियः: true });',
+      function () {
+        return [
+          D['पीडकम्']('लघु', null, { आकारः: 'लघु' }),
+          D['पीडकम्']('मध्यम', null, { आकारः: 'मध्यम' }),
+          D['पीडकम्']('बृहत्', null, { आकारः: 'बृहत्' }),
+          D['पीडकम्']('निष्क्रिय', null, { निष्क्रियः: true })
+        ];
+      });
+  })();
+
+  // ===================================================================
+  // BADGES & AVATARS
+  // ===================================================================
+  (function () {
+    var s = section('badges', 'Badges & Avatars', 'चिह्नम्(पाठः, वर्गः) and अवतारः(आद्याक्षरम्, वर्गः).');
+    example(s,
+'Devarupa.चिह्नम्("नूतनम्", "प्राथमिक");\n' +
+'Devarupa.चिह्नम्("सफलता", "सफलता");\n' +
+'Devarupa.अवतारः("रा", "प्राथमिक");',
+      function () {
+        return [
+          D['चिह्नम्']('नूतनम्', 'प्राथमिक'), D['चिह्नम्']('सफलता', 'सफलता'),
+          D['चिह्नम्']('चेतावनी', 'चेतावनी'), D['चिह्नम्']('संकटः', 'संकट'), D['चिह्नम्']('सूचना', 'सूचना'),
+          D['अवतारः']('रा', 'प्राथमिक'), D['अवतारः']('गी', 'सफलता'), D['अवतारः']('श्या', 'संकट')
+        ];
+      });
+  })();
+
+  // ===================================================================
+  // CARDS & ALERTS
+  // ===================================================================
+  (function () {
+    var s = section('cards', 'Cards & Alerts', 'पत्रकम्({शीर्षकम्, सामग्री, पादः}) and सूचनापट्टी(पाठः, वर्गः, बन्दनीयः).');
+    example(s,
+'Devarupa.पत्रकम्({\n' +
+'  शीर्षकम्: "पत्रकम् — Card",\n' +
+'  सामग्री: "Cards group related content with a title and body."\n' +
+'});',
+      function () {
+        return D['पत्रकम्']({ शीर्षकम्: 'पत्रकम् — Card', सामग्री: 'Cards group related content with a title and body.' });
+      }, { col: true });
+    example(s,
+'Devarupa.सूचनापट्टी("कार्य सफलम्!", "सफलता", true);   // dismissible\n' +
+'Devarupa.सूचनापट्टी("सावधानम्।", "चेतावनी", false);',
+      function () {
+        var col = elm('div'); col.style.display = 'flex'; col.style.flexDirection = 'column'; col.style.gap = '10px'; col.style.width = '100%';
+        mount(col, D['सूचनापट्टी']('एषा सूचना अस्ति।', 'सूचना', false));
+        mount(col, D['सूचनापट्टी']('कार्य सफलतया सम्पन्नम्!', 'सफलता', true));
+        mount(col, D['सूचनापट्टी']('सावधानम् — पश्यतु।', 'चेतावनी', true));
+        mount(col, D['सूचनापट्टी']('त्रुटिः अभवत्।', 'संकट', true));
+        return col;
+      }, { col: true });
+  })();
+
+  // ===================================================================
+  // FORM FIELDS
+  // ===================================================================
+  (function () {
+    var s = section('forms', 'Form fields', 'Inputs, textarea, select, checkbox, radio, slider, switch. Each returns { अंशः, मूल्यम्() } (plus इनपुटः where relevant).');
+    example(s,
+'const name = Devarupa.आदानक्षेत्रम्({\n' +
+'  नामपत्रम्: "तव नाम", स्थानधारी: "यहाँ लिखें…", अधिकतमः: 40\n' +
+'});\n' +
+'document.body.appendChild(name.अंशः);\n' +
+'name.मूल्यम्();   // → current string',
+      function () { return D['आदानक्षेत्रम्']({ नामपत्रम्: 'तव नाम', स्थानधारी: 'यहाँ लिखें…', अधिकतमः: 40 }); }, { col: true });
+
+    example(s,
+'Devarupa.बहुपाठक्षेत्रम्({ नामपत्रम्: "परिचयः", अधिकतमः: 120 });\n' +
+'Devarupa.चयनक्षेत्रम्({ नामपत्रम्: "देशः", विकल्पसूची: [...] });',
+      function () {
+        var col = elm('div'); col.style.display = 'flex'; col.style.flexDirection = 'column'; col.style.gap = '16px'; col.style.width = '100%';
+        mount(col, D['बहुपाठक्षेत्रम्']({ नामपत्रम्: 'परिचयः', स्थानधारी: 'संक्षिप्तं परिचयं लिखतु…', अधिकतमः: 120 }));
+        mount(col, D['चयनक्षेत्रम्']({
+          नामपत्रम्: 'देशः',
+          विकल्पसूची: [{ मूल्यम्: 'भारतम्', पाठः: 'भारतम्' }, { मूल्यम्: 'नेपालः', पाठः: 'नेपालः' }, { मूल्यम्: 'अमेरिका', पाठः: 'संयुक्तराज्यम्' }]
+        }));
+        return col;
+      }, { col: true });
+
+    example(s,
+'Devarupa.अङ्कितपेटिका("निबन्धनानि स्वीकरोमि", false, onChange);\n' +
+'Devarupa.विकल्पचक्रम्("plan", options, "प्रो", onChange);\n' +
+'Devarupa.सर्पिणी({ नामपत्रम्: "बजटः", न्यूनतमः: 1, अधिकतमः: 100, प्रारम्भः: 20 });\n' +
+'Devarupa.परिवर्तकम्(true, onToggle);',
+      function () {
+        var col = elm('div'); col.style.display = 'flex'; col.style.flexDirection = 'column'; col.style.gap = '16px'; col.style.width = '100%';
+        mount(col, D['अङ्कितपेटिका']('निबन्धनानि स्वीकरोमि', false, null));
+        mount(col, D['विकल्पचक्रम्']('plan', [{ मूल्यम्: 'नि:शुल्क', पाठः: 'नि:शुल्क' }, { मूल्यम्: 'प्रो', पाठः: 'प्रो' }, { मूल्यम्: 'टीम', पाठः: 'टीम' }], 'प्रो', null));
+        mount(col, D['सर्पिणी']({ नामपत्रम्: 'मासिकबजटः (₹ सहस्रेषु)', न्यूनतमः: 1, अधिकतमः: 100, प्रारम्भः: 20 }));
+        var srow = elm('div'); srow.style.display = 'flex'; srow.style.gap = '12px'; srow.style.alignItems = 'center';
+        mount(srow, D['परिवर्तकम्'](true, null)); mount(srow, D['परिवर्तकम्'](false, null));
+        col.append(srow);
+        return col;
+      }, { col: true });
+  })();
+
+  // ===================================================================
+  // VALIDATION
+  // ===================================================================
+  (function () {
+    var s = section('validation', 'Validation', 'प्रमाणनम् — validators speak Devabhāṣā\'s परिणाम (Result) protocol: साधितम्(value) or विफलम्(message). A प्रमाणितक्षेत्रम् validates itself on blur and drops into प्रपत्रम्, which blocks submit until every field is valid.');
+    example(s,
+'const email = Devarupa.प्रमाणितक्षेत्रम्({\n' +
+'  नाम: "email", नामपत्रम्: "Email",\n' +
+'  नियमाः: [Devarupa.आवश्यकः, Devarupa.विद्युत्पत्रम्]\n' +
+'});\n' +
+'const user = Devarupa.प्रमाणितक्षेत्रम्({\n' +
+'  नाम: "user", नामपत्रम्: "Username",\n' +
+'  नियमाः: [Devarupa.आवश्यकः, Devarupa.न्यूनदैर्घ्यम्(3)]\n' +
+'});\n' +
+'Devarupa.प्रपत्रम्({\n' +
+'  क्षेत्राणि: [user, email],\n' +
+'  समर्पणपाठः: "Sign up",\n' +
+'  समर्पणहस्तकः: (values) => Devarupa.क्षणिकसूचना("Welcome!", "सफलता")\n' +
+'});  // submit is blocked while any field is invalid',
+      function () {
+        var user = D['प्रमाणितक्षेत्रम्']({ नाम: 'user', नामपत्रम्: 'Username', स्थानधारी: 'min 3 chars', नियमाः: [D['आवश्यकः'], D['न्यूनदैर्घ्यम्'](3)] });
+        var email = D['प्रमाणितक्षेत्रम्']({ नाम: 'email', नामपत्रम्: 'Email', स्थानधारी: 'name@example.com', प्रकारः: 'email', नियमाः: [D['आवश्यकः'], D['विद्युत्पत्रम्']] });
+        var age = D['प्रमाणितक्षेत्रम्']({ नाम: 'age', नामपत्रम्: 'Age', स्थानधारी: 'a number', नियमाः: [D['आवश्यकः'], D['संख्यामात्रम्']] });
+        return D['प्रपत्रम्']({
+          क्षेत्राणि: [user, email, age], समर्पणपाठः: 'Sign up',
+          समर्पणहस्तकः: function () { D['क्षणिकसूचना']('Welcome aboard!', 'सफलता'); }
+        });
+      }, { col: true });
+    note(s, 'Try submitting empty, or with a bad email — the form refuses and each field paints its own message. Fix them and it submits (and fires a toast).');
+  })();
+
+  // ===================================================================
+  // FEEDBACK: progress / spinner / divider
+  // ===================================================================
+  (function () {
+    var s = section('feedback', 'Progress, Spinner, Divider', 'प्रगतिपट्टी(प्रतिशतः), चक्रिका(), विभाजकः().');
+    example(s,
+'const bar = Devarupa.प्रगतिपट्टी(65);\n' +
+'bar.मूल्यसेट(80);   // update later\n\n' +
+'const spin = Devarupa.चक्रिका();   // animated via कालचक्र\n' +
+'spin.नष्ट();        // stop the timer',
+      function () {
+        var col = elm('div'); col.style.display = 'flex'; col.style.flexDirection = 'column'; col.style.gap = '16px'; col.style.width = '100%';
+        var bar = D['प्रगतिपट्टी'](65); mount(col, bar);
+        var ctl = elm('div'); ctl.style.display = 'flex'; ctl.style.gap = '10px'; ctl.style.alignItems = 'center';
+        var pct = 65;
+        mount(ctl, D['पीडकम्']('+10%', function () { pct = Math.min(100, pct + 10); bar.मूल्यसेट(pct); }, { वर्गः: 'द्वितीयक', आकारः: 'लघु' }));
+        mount(ctl, D['चक्रिका']());
+        col.append(ctl);
+        mount(col, D['विभाजकः']());
+        return col;
+      }, { col: true });
+  })();
+
+  // ===================================================================
+  // OVERLAYS: tabs / modal / tooltip
+  // ===================================================================
+  (function () {
+    var s = section('overlays', 'Tabs, Modal, Tooltip', 'टैबसमूहः([…]), विधिवातायनम्({…}), उपकरणसूचना(node, पाठः).');
+    example(s,
+'Devarupa.टैबसमूहः([\n' +
+'  { शीर्षकम्: "एकः", सामग्री: node1 },\n' +
+'  { शीर्षकम्: "द्वौ", सामग्री: node2 }\n' +
+']).अंशः;',
+      function () {
+        function panel(t) { var d = elm('div'); d.style.color = 'var(--db-text-muted)'; d.textContent = t; return d; }
+        return D['टैबसमूहः']([
+          { शीर्षकम्: 'एकः', सामग्री: panel('First tab — content lives here.') },
+          { शीर्षकम्: 'द्वौ', सामग्री: panel('Second tab — more information.') },
+          { शीर्षकम्: 'त्रयः', सामग्री: panel('Third tab — settings, perhaps.') }
+        ]).अंशः;
+      }, { col: true });
+
+    example(s,
+'const modal = Devarupa.विधिवातायनम्({ शीर्षकम्: "नमस्ते", सामग्री: node });\n' +
+'document.body.appendChild(modal.अंशः);  // mount once, hidden\n' +
+'modal.विवृणु();  // open   ·   modal.संवृणु();  // close\n\n' +
+'Devarupa.उपकरणसूचना(anyNode, "tooltip text");',
+      function () {
+        var modal = D['विधिवातायनम्']({ शीर्षकम्: 'विधिवातायनम् (Modal)', सामग्री: (function () { var d = elm('div'); d.style.color = 'var(--db-text-muted)'; d.textContent = 'Click outside or ✕ to dismiss.'; return d; })() });
+        document.body.appendChild(modal.अंशः);
+        var row = elm('div'); row.style.display = 'flex'; row.style.gap = '12px'; row.style.alignItems = 'center'; row.style.flexWrap = 'wrap';
+        mount(row, D['पीडकम्']('Open modal', function () { modal.विवृणु(); }, { वर्गः: 'प्राथमिक' }));
+        mount(row, D['उपकरणसूचना'](D['पीडकम्']('Hover me', null, { वर्गः: 'बाह्यरेखा', आकारः: 'लघु' }), 'यह एक उपकरणसूचना है'));
+        return row;
+      }, { col: true });
+  })();
+
+  // ===================================================================
+  // CHARTS
+  // ===================================================================
+  (function () {
+    var s = section('charts', 'Charts', 'Real SVG (fills resolve theme colors too). दण्डारेखाचित्रम्, रेखाचित्रम्, वृत्तचित्रम्, सांख्यिकाकार्डम्.', 'Data');
+    example(s,
+'Devarupa.दण्डारेखाचित्रम्({\n' +
+'  दत्तानि: [ { नाम: "जन", मूल्यम्: 42 }, { नाम: "फर", मूल्यम्: 55 },\n' +
+'           { नाम: "मार्च", मूल्यम्: 48 }, { नाम: "अप्रै", मूल्यम्: 67 } ]\n' +
+'});',
+      function () {
+        var w = elm('div'); w.style.width = '100%'; w.style.maxWidth = '380px';
+        mount(w, D['दण्डारेखाचित्रम्']({ दत्तानि: [{ नाम: 'जन', मूल्यम्: 42 }, { नाम: 'फर', मूल्यम्: 55 }, { नाम: 'मार्च', मूल्यम्: 48 }, { नाम: 'अप्रै', मूल्यम्: 67 }, { नाम: 'मई', मूल्यम्: 74 }] }));
+        return w;
+      }, { col: true });
+    example(s,
+'Devarupa.रेखाचित्रम्({ वर्णः: Devarupa.वर्णपटः.सफलता, दत्तानि: [...] });',
+      function () {
+        var w = elm('div'); w.style.width = '100%'; w.style.maxWidth = '380px';
+        mount(w, D['रेखाचित्रम्']({ वर्णः: D['वर्णपटः'].सफलता, दत्तानि: [{ नाम: 'सोम', मूल्यम्: 120 }, { नाम: 'मङ्गल', मूल्यम्: 145 }, { नाम: 'बुध', मूल्यम्: 130 }, { नाम: 'गुरु', मूल्यम्: 170 }, { नाम: 'शुक्र', मूल्यम्: 195 }] }));
+        return w;
+      }, { col: true });
+    example(s,
+'Devarupa.वृत्तचित्रम्({ वलयांशः: 0.55, दत्तानि: [...] });   // donut',
+      function () {
+        return D['वृत्तचित्रम्']({ वलयांशः: 0.55, दत्तानि: [{ नाम: 'अन्वेषणम्', मूल्यम्: 45 }, { नाम: 'सामाजिकम्', मूल्यम्: 25 }, { नाम: 'प्रत्यक्षम्', मूल्यम्: 20 }, { नाम: 'निर्देशनम्', मूल्यम्: 10 }] });
+      }, { col: true });
+    example(s,
+'Devarupa.सांख्यिकाकार्डम्({ शीर्षकम्: "मासिक आयः", मूल्यम्: "₹ 83,000", परिवर्तनम्: 12.4 });',
+      function () {
+        var row = elm('div'); row.style.display = 'flex'; row.style.gap = '14px'; row.style.flexWrap = 'wrap';
+        mount(row, D['सांख्यिकाकार्डम्']({ शीर्षकम्: 'मासिक आयः', मूल्यम्: '₹ 83,000', परिवर्तनम्: 12.4 }));
+        mount(row, D['सांख्यिकाकार्डम्']({ शीर्षकम्: 'सक्रिय उपयोक्तारः', मूल्यम्: '2,140', परिवर्तनम्: 5.1 }));
+        mount(row, D['सांख्यिकाकार्डम्']({ शीर्षकम्: 'अपवर्तनदरः', मूल्यम्: '3.2%', परिवर्तनम्: -1.8 }));
+        return row;
+      }, { col: true });
+  })();
+
+  // ===================================================================
+  // DATA TABLE
+  // ===================================================================
+  (function () {
+    var s = section('table', 'Data table', 'सारणी — click a क्रमणीयः header to sort (uses उपयोगिता.क्रमय); pages are cut with उपयोगिता.खण्डशः.', 'Data');
+    example(s,
+'Devarupa.सारणी({\n' +
+'  पृष्ठमानम्: 4,\n' +
+'  स्तम्भाः: [\n' +
+'    { कुञ्जी: "नाम",   शीर्षकम्: "नाम",   क्रमणीयः: true },\n' +
+'    { कुञ्जी: "विषयः", शीर्षकम्: "विषयः", क्रमणीयः: true },\n' +
+'    { कुञ्जी: "अङ्काः", शीर्षकम्: "अङ्काः", क्रमणीयः: true }\n' +
+'  ],\n' +
+'  दत्तानि: [ { नाम: "रामः", विषयः: "गणितम्", अङ्काः: 88 }, /* … */ ]\n' +
+'}).अंशः;',
+      function () {
+        return D['सारणी']({
+          पृष्ठमानम्: 4,
+          स्तम्भाः: [{ कुञ्जी: 'नाम', शीर्षकम्: 'नाम', क्रमणीयः: true }, { कुञ्जी: 'विषयः', शीर्षकम्: 'विषयः', क्रमणीयः: true }, { कुञ्जी: 'अङ्काः', शीर्षकम्: 'अङ्काः', क्रमणीयः: true }],
+          दत्तानि: [
+            { नाम: 'रामः', विषयः: 'गणितम्', अङ्काः: 88 }, { नाम: 'गीता', विषयः: 'विज्ञानम्', अङ्काः: 95 },
+            { नाम: 'श्यामः', विषयः: 'संस्कृतम्', अङ्काः: 73 }, { नाम: 'सीता', विषयः: 'इतिहासः', अङ्काः: 61 },
+            { नाम: 'अर्जुनः', विषयः: 'गणितम्', अङ्काः: 80 }, { नाम: 'राधा', विषयः: 'विज्ञानम्', अङ्काः: 91 },
+            { नाम: 'भीमः', विषयः: 'संस्कृतम्', अङ्काः: 67 }
+          ]
+        }).अंशः;
+      }, { col: true });
+  })();
+
+  // ===================================================================
+  // TOASTS
+  // ===================================================================
+  (function () {
+    var s = section('toasts', 'Toasts', 'क्षणिकसूचना(पाठः, वर्गः, आयुः?) — appears top-right, fades in, auto-dismisses (कालचक्र), or on click.', 'Data');
+    example(s,
+'Devarupa.क्षणिकसूचना("सफलतया सञ्चितम्!", "सफलता");        // 3s default\n' +
+'Devarupa.क्षणिकसूचना("सावधानम्।", "चेतावनी", 5000);      // custom ms',
+      function () {
+        var row = elm('div'); row.style.display = 'flex'; row.style.gap = '10px'; row.style.flexWrap = 'wrap';
+        [['सफलता-सूचना', 'सफलता', 'सफलतया सञ्चितम्!'], ['सूचना', 'सूचना', 'एषा एका सूचना अस्ति।'],
+         ['चेतावनी', 'चेतावनी', 'सावधानम् — पुनः पश्यतु।'], ['संकट', 'संकट', 'त्रुटिः अभवत्!']].forEach(function (x) {
+          row.append(D['पीडकम्'](x[0], (function (msg, cls) { return function () { D['क्षणिकसूचना'](msg, cls); }; })(x[2], x[1]), { वर्गः: x[1] === 'सूचना' ? 'बाह्यरेखा' : x[1], आकारः: 'लघु' }));
+        });
+        return row;
+      });
+  })();
+
+  // ===================================================================
+  // UTILITIES
+  // ===================================================================
+  (function () {
+    var s = section('utilities', 'Utilities', 'उपयोगिता — browser-safe list/string helpers lifted from Devabhāṣā\'s own std/सूची and std/पाठ.', 'Data');
+    block(s,
+'Devarupa.क्रमय([3,1,2], (a,b) => a - b);        // → [1,2,3]  (stable, non-mutating)\n' +
+'Devarupa.खण्डशः([1,2,3,4,5], 2);                // → [[1,2],[3,4],[5]]\n' +
+'Devarupa.अद्वितीयम्([1,1,2,3,3]);               // → [1,2,3]\n' +
+'Devarupa.परिसरः(0, 4);                          // → [0,1,2,3]\n' +
+'Devarupa.गणय([1,2,3,4], x => x % 2 === 0);      // → 2\n' +
+'Devarupa.योगः([1,2,3,4]);                       // → 10\n' +
+'Devarupa.प्रथमाक्षरोच्च("hello");                // → "Hello"\n' +
+'Devarupa.रिक्तः("   ");                          // → true\n' +
+'Devarupa.व्युत्क्रमः("abc");                     // → "cba"\n' +
+'Devarupa.वामपूरणम्("7", 3, "0");                // → "007"');
+    apiTable(s, ['Function', 'ASCII', 'Signature'], [
+      ['<code>योगः / महत्तमम् / न्यूनतमम्</code>', '<code>yogah / mahattamam / nyuunatamam</code>', '<code>(सूची)</code> — sum / max / min'],
+      ['<code>गणय</code>', '<code>gannaya</code>', '<code>(सूची, परीक्षा)</code> — count by predicate'],
+      ['<code>अद्वितीयम्</code>', '<code>advitiiyam</code>', '<code>(सूची)</code> — unique, order preserved'],
+      ['<code>परिसरः</code>', '<code>parisarah</code>', '<code>(आदिः, अन्तः)</code> — range list'],
+      ['<code>खण्डशः</code>', '<code>khannddashah</code>', '<code>(सूची, आकारः)</code> — chunk'],
+      ['<code>क्रमय</code>', '<code>kramaya</code>', '<code>(सूची, तुल)</code> — stable non-mutating sort'],
+      ['<code>प्रथमाक्षरोच्च</code>', '<code>prathamaakssarocca</code>', '<code>(पाठः)</code> — capitalize first char'],
+      ['<code>आवर्तय</code>', '<code>aavartaya</code>', '<code>(पाठः, सङ्ख्या)</code> — repeat'],
+      ['<code>रिक्तः</code>', '<code>riktah</code>', '<code>(पाठः)</code> — empty / whitespace only?'],
+      ['<code>अन्तर्भवति</code>', '<code>antarbhavati</code>', '<code>(पाठः, खण्डः)</code> — contains substring?'],
+      ['<code>व्युत्क्रमः</code>', '<code>vyutkramah</code>', '<code>(पाठः)</code> — reverse characters'],
+      ['<code>वामपूरणम्</code>', '<code>vaamapuurannam</code>', '<code>(पाठः, लक्ष्यम्, पूरकः)</code> — left-pad']
+    ]);
+  })();
+
+  // ===================================================================
+  // FULL API REFERENCE
+  // ===================================================================
+  (function () {
+    var s = section('api', 'API reference', 'Every component signature. Return shapes with .अंशः also expose the controls noted.', 'Reference');
+    sub(s, 'Core components (घटकाः)');
+    apiTable(s, ['Name', 'ASCII', 'Signature'], [
+      ['<code>पीडकम्</code>', '<code>piiddakam</code>', '<code>(पाठः, हस्तकः, {वर्गः, आकारः, निष्क्रियः, चौडम्})</code>'],
+      ['<code>चिह्नम्</code>', '<code>cihnam</code>', '<code>(पाठः, वर्गः)</code>'],
+      ['<code>पत्रकम्</code>', '<code>patrakam</code>', '<code>({शीर्षकम्, सामग्री, पादः})</code>'],
+      ['<code>सूचनापट्टी</code>', '<code>suucanaapattttii</code>', '<code>(पाठः, वर्गः, बन्दनीयः)</code>'],
+      ['<code>आदानक्षेत्रम्</code>', '<code>aadaanakssetram</code>', '<code>({नामपत्रम्, स्थानधारी, प्रकारः, प्रारम्भः, अधिकतमः}) → {अंशः, इनपुटः, मूल्यम्()}</code>'],
+      ['<code>परिवर्तकम्</code>', '<code>parivartakam</code>', '<code>(प्रारम्भः, हस्तकः) → {अंशः, स्थितिः()}</code>'],
+      ['<code>प्रगतिपट्टी</code>', '<code>pragatipattttii</code>', '<code>(प्रतिशतः) → {अंशः, मूल्यसेट(n)}</code>'],
+      ['<code>अवतारः</code>', '<code>avataarah</code>', '<code>(आद्याक्षरम्, वर्गः)</code>'],
+      ['<code>विभाजकः</code>', '<code>vibhaajakah</code>', '<code>()</code>'],
+      ['<code>चक्रिका</code>', '<code>cakrikaa</code>', '<code>() → {अंशः, नष्ट()}</code>'],
+      ['<code>टैबसमूहः</code>', '<code>ttaibasamuuhah</code>', '<code>([{शीर्षकम्, सामग्री}]) → {अंशः}</code>'],
+      ['<code>विधिवातायनम्</code>', '<code>vidhivaataayanam</code>', '<code>({शीर्षकम्, सामग्री}) → {अंशः, विवृणु(), संवृणु()}</code>'],
+      ['<code>उपकरणसूचना</code>', '<code>upakarannasuucanaa</code>', '<code>(मूलघटकः, पाठः)</code>']
+    ]);
+    sub(s, 'Forms (प्रपत्राणि)');
+    apiTable(s, ['Name', 'ASCII', 'Signature'], [
+      ['<code>बहुपाठक्षेत्रम्</code>', '<code>bahupaatthakssetram</code>', '<code>({नामपत्रम्, स्थानधारी, पङ्क्तयः, अधिकतमः}) → {अंशः, इनपुटः, मूल्यम्()}</code>'],
+      ['<code>चयनक्षेत्रम्</code>', '<code>cayanakssetram</code>', '<code>({नामपत्रम्, विकल्पसूची, प्रारम्भः}) → {अंशः, मूल्यम्()}</code>'],
+      ['<code>अङ्कितपेटिका</code>', '<code>angkitapettikaa</code>', '<code>(पाठः, प्रारम्भः, हस्तकः) → {अंशः, मूल्यम्()}</code>'],
+      ['<code>विकल्पचक्रम्</code>', '<code>vikalpacakram</code>', '<code>(नाम, विकल्पसूची, प्रारम्भः, हस्तकः) → {अंशः, मूल्यम्()}</code>'],
+      ['<code>सर्पिणी</code>', '<code>sarpinnii</code>', '<code>({नामपत्रम्, न्यूनतमः, अधिकतमः, प्रारम्भः}) → {अंशः, मूल्यम्()}</code>'],
+      ['<code>त्रुटिपाठः</code>', '<code>truttipaatthah</code>', '<code>(पाठः)</code>'],
+      ['<code>प्रपत्रम्</code>', '<code>prapatram</code>', '<code>({क्षेत्राणि, समर्पणपाठः, समर्पणहस्तकः})</code> — runs each field\'s <code>.वैधः()</code> on submit'],
+      ['<code>प्रमाणितक्षेत्रम्</code>', '<code>pramaannitakssetram</code>', '<code>({नाम, नामपत्रम्, स्थानधारी, प्रकारः, नियमाः}) → {अंशः, इनपुटः, नाम, मूल्यम्(), वैधः()}</code>'],
+      ['<code>आवश्यकः / न्यूनदैर्घ्यम्(n) / अधिकदैर्घ्यम्(n)</code>', '<code>aavashyakah / …</code>', 'validators → <code>परिणाम</code>'],
+      ['<code>संख्यामात्रम् / विद्युत्पत्रम्</code>', '<code>samkhyaamaatram / vidyutpatram</code>', 'validators → <code>परिणाम</code>'],
+      ['<code>प्रमाणय</code>', '<code>pramaannaya</code>', '<code>(मूल्यम्, नियमाः) → परिणाम</code>']
+    ]);
+    sub(s, 'Data (आरेखाः · सारणी)');
+    apiTable(s, ['Name', 'ASCII', 'Signature'], [
+      ['<code>दण्डारेखाचित्रम्</code>', '<code>dannddaarekhaacitram</code>', '<code>({दत्तानि, चौडाई, उच्चता, वर्णः})</code> — bar'],
+      ['<code>रेखाचित्रम्</code>', '<code>rekhaacitram</code>', '<code>({दत्तानि, चौडाई, उच्चता, वर्णः})</code> — line'],
+      ['<code>वृत्तचित्रम्</code>', '<code>vrittacitram</code>', '<code>({दत्तानि, व्यासः, वलयांशः})</code> — pie / donut'],
+      ['<code>सांख्यिकाकार्डम्</code>', '<code>saamkhyikaakaarddam</code>', '<code>({शीर्षकम्, मूल्यम्, परिवर्तनम्})</code> — KPI card'],
+      ['<code>सारणी</code>', '<code>saarannii</code>', '<code>({स्तम्भाः, दत्तानि, पृष्ठमानम्}) → {अंशः}</code>'],
+      ['<code>क्षणिकसूचना</code>', '<code>kssannikasuucanaa</code>', '<code>(पाठः, वर्गः, आयुः?) → {अंशः, बन्द()}</code>']
+    ]);
+  })();
+
+  // ---------- build the sidebar nav (grouped) ----------
+  var groupsOrder = ['Getting started', 'Components', 'Data', 'Reference'];
+  var seen = {};
+  groupsOrder.forEach(function (g) {
+    var items = navGroups.filter(function (n) { return n.group === g; });
+    if (!items.length) return;
+    nav.append(elm('div', 'group', g));
+    items.forEach(function (n) {
+      var a = elm('a', null, n.title); a.href = '#' + n.id; a.dataset.id = n.id; nav.append(a);
+    });
+  });
+
+  // ---------- scroll-spy: highlight active nav link ----------
+  var links = Array.prototype.slice.call(nav.querySelectorAll('a'));
+  var byId = {}; links.forEach(function (a) { byId[a.dataset.id] = a; });
+  var spy = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (a) { a.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-64px 0px -70% 0px' });
+  document.querySelectorAll('section').forEach(function (sec) { spy.observe(sec); });
+})();
+</script>
+</body>
+</html>

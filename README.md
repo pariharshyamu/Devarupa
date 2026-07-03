@@ -15,6 +15,14 @@ the same `साधितम्`/`विफलम्` Result values the language
 Every component is plain, inspectable JavaScript once compiled — no framework
 runtime, no virtual DOM, no build step required to *use* it.
 
+### 📖 Live documentation & demo → **<https://pariharshyamu.github.io/Devarupa/>**
+
+A comprehensive, **fully interactive** docs site lives in [`docs/`](docs/):
+every component is rendered live by the real bundle, with copy-able code, a
+theme switcher that re-themes the whole page, and complete API tables. Open
+[`docs/index.html`](docs/index.html) locally, or browse the raw component
+showcase at [`examples/index.html`](examples/index.html).
+
 > **Status:** this is an independent, community-built library written *using*
 > Devabhāṣā.
 
@@ -313,6 +321,19 @@ name aliases. The alias map is derived automatically — it scans each module's
 so adding a new module or export needs no edit to the build script; just make
 sure `अनुक्रमणिका.deva` imports something from it. Read the script if you want
 to change what gets bundled.
+
+The build also writes a copy of the bundle to `docs/devarupa.browser.js`, which
+`docs/index.html` loads with a relative path — so the documentation site is
+self-contained and needs no separate step to stay in sync.
+
+### The documentation site
+
+[`docs/index.html`](docs/index.html) is a single, self-contained page that
+loads `docs/devarupa.browser.js` and renders every component live. It is
+published with **GitHub Pages**: in the repository's *Settings → Pages*, set
+the source to *Deploy from a branch* → `main` / `/docs`. The site then serves
+at `https://<user>.github.io/Devarupa/`. Because the page is plain HTML/JS with
+no build step, editing `docs/index.html` is all it takes to change the docs.
 
 ---
 
