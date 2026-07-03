@@ -180,7 +180,12 @@
 # ===================================================================
 # प्रपत्रम् — Form composer: lays out a list of fields, adds a submit
 # button, and collects every field's current value into one object on
-# submit. विकल्पाः: { क्षेत्राणि: [{नाम, अंशः, मूल्यम्}], समर्पणपाठः, समर्पणहस्तकः }
+# submit. विकल्पाः: { क्षेत्राणि: [{नाम, अंशः, मूल्यम्, वैधः?}], समर्पणपाठः, समर्पणहस्तकः }
+#
+# If a field exposes a .वैधः() method (as प्रमाणितक्षेत्रम् does), it is run on
+# submit; when any field is invalid the submit is blocked and .समर्पणहस्तकः is
+# not called. Plain fields (आदानक्षेत्रम्, चयनक्षेत्रम्, …) have no .वैधः and are
+# always treated as valid, so mixing validated and plain fields just works.
 # ===================================================================
 निर्यात कार्य प्रपत्रम् (विकल्पाः) {
     चर वि = विकल्पाः ?? कोष{ }।
@@ -194,6 +199,19 @@
     }
 
     चर समर्पणपीडकः = पीडकम्(वि.समर्पणपाठः ?? "समर्पय", कार्य(){
+        # validation pass — run every field that carries a .वैधः() check.
+        # (Loop over all fields so each invalid one paints/messages itself,
+        # rather than stopping at the first.)
+        चर सर्वेवैधाः = सत्यम्।
+        चर क = ०।
+        यावत् (क < क्षेत्राणि.दीर्घता) {
+            यदि (क्षेत्राणि[क].वैधः) {
+                यदि (क्षेत्राणि[क].वैधः() == असत्यम्) { सर्वेवैधाः = असत्यम्; }
+            }
+            क = क + १।
+        }
+        यदि (सर्वेवैधाः == असत्यम्) { फलम् शून्यम्। }
+
         चर परिणामः = कोष{ }।
         चर ज = ०।
         यावत् (ज < क्षेत्राणि.दीर्घता) {

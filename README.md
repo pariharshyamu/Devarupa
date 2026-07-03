@@ -1,13 +1,19 @@
 # देवरूप · Devarūpa
 
-A UI/UX component library — buttons, forms, charts, theming — written in
+A UI/UX component library — buttons, forms, charts, a sortable data table,
+toasts, theming — written in
 [**Devabhāṣā**](https://www.npmjs.com/package/devabhasha) (देवभाषा), the
 Sanskrit-syntax language that transpiles to JavaScript.
 
-35 components across three modules, a CSS-custom-property theme cascade with
+Components across seven modules, a CSS-custom-property theme cascade with
 four built-in themes (and instant switching with zero rebuild), and a working
-demo page. Every component is plain, inspectable JavaScript once compiled —
-no framework runtime, no virtual DOM, no build step required to *use* it.
+demo page. It also pulls Devabhāṣā's own standard-library idioms into the UI
+layer: **list/string helpers** (`क्रमय`, `खण्डशः`, `अद्वितीयम्`, `प्रथमाक्षरोच्च`, …
+ported from `std/सूची` and `std/पाठ`) and **`परिणाम`-based form validation** —
+so a sortable/paginated table sorts with `क्रमय`, and a validated field returns
+the same `साधितम्`/`विफलम्` Result values the language uses everywhere else.
+Every component is plain, inspectable JavaScript once compiled — no framework
+runtime, no virtual DOM, no build step required to *use* it.
 
 > **Status:** this is an independent, community-built library written *using*
 > Devabhāṣā.
@@ -178,7 +184,7 @@ yourself with `appendChild`/`Devarupa.योजय(node)` — nothing auto-mount
 | `विकल्पचक्रम्` | `vikalpacakram` | `(नाम, विकल्पसूची, प्रारम्भः, हस्तकः)` → `{अंशः, मूल्यम्()}` | Radio button group |
 | `सर्पिणी` | `sarpinnii` | `({नामपत्रम्, न्यूनतमः, अधिकतमः, प्रारम्भः})` → `{अंशः, मूल्यम्()}` | Range slider with live readout |
 | `त्रुटिपाठः` | `truttipaatthah` | `(पाठः)` | Small red validation message |
-| `प्रपत्रम्` | `prapatram` | `({क्षेत्राणि:[{नाम,अंशः,मूल्यम्}], समर्पणपाठः, समर्पणहस्तकः})` | Composes fields + a submit button; collects every field's value into one object on submit |
+| `प्रपत्रम्` | `prapatram` | `({क्षेत्राणि:[{नाम,अंशः,मूल्यम्,वैधः?}], समर्पणपाठः, समर्पणहस्तकः})` | Composes fields + a submit button; collects every field's value into one object on submit. Any field exposing `.वैधः()` (e.g. `प्रमाणितक्षेत्रम्`) is validated first — an invalid field blocks the submit |
 
 ### आरेखाः (Charts)
 
@@ -191,6 +197,49 @@ All charts are real SVG (built as markup strings, assigned via `innerHTML`
 | `रेखाचित्रम्` | `rekhaacitram` | `({दत्तानि, चौडाई, उच्चता, वर्णः})` | Line chart with soft area fill |
 | `वृत्तचित्रम्` | `vrittacitram` | `({दत्तानि:[{नाम,मूल्यम्,वर्णः?}], व्यासः, वलयांशः})` | Pie chart (`वलयांशः: 0`) or donut (`> 0`), with legend |
 | `सांख्यिकाकार्डम्` | `saamkhyikaakaarddam` | `({शीर्षकम्, मूल्यम्, परिवर्तनम्})` | KPI stat card with a trend arrow |
+
+### सारणी (Data table & toasts)
+
+| Devanagari | ASCII | Signature | Description |
+|---|---|---|---|
+| `सारणी` | `saarannii` | `({स्तम्भाः:[{कुञ्जी,शीर्षकम्,क्रमणीयः?}], दत्तानि:[…], पृष्ठमानम्?})` → `{अंशः}` | Data table. Click a `क्रमणीयः` header to sort (▲/▼, toggles) — sorting uses `उपयोगिता.क्रमय`; paging uses `उपयोगिता.खण्डशः`. Pagination controls appear when the data exceeds one page |
+| `क्षणिकसूचना` | `kssannikasuucanaa` | `(पाठः, वर्गः, आयुः?)` → `{अंशः, बन्द()}` | Toast. Appears top-right, fades in, auto-dismisses after `आयुः` ms (default 3000), or on click. Fade + timeout driven by `कालचक्र` |
+
+### प्रमाणनम् (Form validation)
+
+Validators speak Devabhāṣā's native `परिणाम` (Result) protocol — each returns
+`साधितम्(मूल्यम्)` or `विफलम्(संदेशः)`. A `प्रमाणितक्षेत्रम्` drops straight into
+`प्रपत्रम्`: it exposes `.वैधः()`, which the form composer runs on submit.
+
+| Devanagari | ASCII | Signature | Description |
+|---|---|---|---|
+| `आवश्यकः` | `aavashyakah` | `(मूल्यम्)` → `परिणाम` | Required (non-empty) |
+| `न्यूनदैर्घ्यम्` | `nyuunadairghyam` | `(न)` → validator | At least `न` characters |
+| `अधिकदैर्घ्यम्` | `adhikadairghyam` | `(न)` → validator | At most `न` characters |
+| `संख्यामात्रम्` | `samkhyaamaatram` | `(मूल्यम्)` → `परिणाम` | Must parse as a number (via `अङ्कय`) |
+| `विद्युत्पत्रम्` | `vidyutpatram` | `(मूल्यम्)` → `परिणाम` | Structural e-mail check |
+| `प्रमाणय` | `pramaannaya` | `(मूल्यम्, नियमाः)` → `परिणाम` | Run validators in order; first failure wins |
+| `प्रमाणितक्षेत्रम्` | `pramaannitakssetram` | `({नाम, नामपत्रम्, स्थानधारी, प्रकारः, प्रारम्भः, नियमाः:[validator]})` → `{अंशः, इनपुटः, नाम, मूल्यम्(), वैधः()}` | A labelled input that validates itself on blur and shows the failure via `त्रुटिपाठः` |
+
+### उपयोगिता (Devabhāṣā stdlib helpers)
+
+Browser-safe list/string helpers lifted from Devabhāṣā's own `std/सूची` and
+`std/पाठ`, exposed for components and apps alike.
+
+| Devanagari | ASCII | Signature | Description |
+|---|---|---|---|
+| `योगः` / `महत्तमम्` / `न्यूनतमम्` | `yogah` / `mahattamam` / `nyuunatamam` | `(सूची)` | Sum / max / min of a numeric list |
+| `गणय` | `gannaya` | `(सूची, परीक्षा)` | Count elements matching a predicate |
+| `अद्वितीयम्` | `advitiiyam` | `(सूची)` | Unique elements, order preserved |
+| `परिसरः` | `parisarah` | `(आदिः, अन्तः)` | The list `[आदिः, अन्तः)` |
+| `खण्डशः` | `khannddashah` | `(सूची, आकारः)` | Split into sub-lists of size `आकारः` (chunk) |
+| `क्रमय` | `kramaya` | `(सूची, तुल)` | Stable, non-mutating merge sort by a comparator |
+| `प्रथमाक्षरोच्च` | `prathamaakssarocca` | `(पाठः)` | Capitalize the first character |
+| `आवर्तय` | `aavartaya` | `(पाठः, सङ्ख्या)` | Repeat a string |
+| `रिक्तः` | `riktah` | `(पाठः)` | Is the string empty / whitespace-only? |
+| `अन्तर्भवति` | `antarbhavati` | `(पाठः, खण्डः)` | Does it contain the substring? |
+| `व्युत्क्रमः` | `vyutkramah` | `(पाठः)` | Reverse the characters |
+| `वामपूरणम्` | `vaamapuurannam` | `(पाठः, लक्ष्यम्, पूरकः)` | Left-pad to a target length |
 
 ### Example: a bar chart, in plain JS
 
@@ -256,10 +305,14 @@ npm run build            # runs scripts/build-dist.mjs
 ```
 
 `scripts/build-dist.mjs` bundles `src/अनुक्रमणिका.deva` (an entry file that
-just imports all four `src/*.deva` modules so the bundler's dependency graph
+just imports every `src/*.deva` module so the bundler's dependency graph
 includes everything) via `devabhasha`'s own `bundle()` function, then merges
 the resulting module exports onto `window.Devarupa` and adds the Devanagari
-name aliases. Read the script if you want to change what gets bundled.
+name aliases. The alias map is derived automatically — it scans each module's
+`निर्यात` declarations and transliterates them the same way the compiler does —
+so adding a new module or export needs no edit to the build script; just make
+sure `अनुक्रमणिका.deva` imports something from it. Read the script if you want
+to change what gets bundled.
 
 ---
 

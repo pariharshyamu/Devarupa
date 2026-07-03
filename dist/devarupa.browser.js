@@ -39,6 +39,9 @@ const __RT = {
     const n = Number(s);
     return Number.isNaN(n) ? __RT.err("अङ्कः न (not a number): " + s) : __RT.ok(n);
   },
+  // काल — the current time in epoch milliseconds (host-independent). A
+  // duration is काल() - start; a logger stamps each line with it.
+  now() { return Date.now(); },
 };
 // --- देवभाषा runtime ---
 const __DB = {
@@ -67,6 +70,11 @@ const __DB = {
   },
   mount(node, target) {
     const t = typeof target === 'string' ? document.querySelector(target) : (target || document.body);
+    // a बहुवचन group is an array of nodes → append each
+    if (Array.isArray(node)) {
+      node.forEach(n => t.append(n instanceof Node ? n : document.createTextNode(String(n))));
+      return node;
+    }
     t.append(node);
     return node;
   },
@@ -116,6 +124,25 @@ const __DB = {
       (t || document.body).append(node);
     }
     return node;
+  },
+
+  // बहुवचन (plural) construction: distribute one element per समास child,
+  // each child becoming that element's content, all sharing the remaining
+  // kāraka slots (event/handler/prop/style). Returns an ARRAY of nodes — a
+  // "group" that flattens into any parent (समास child arrays are flattened,
+  // and mount/append handle arrays), so it composes exactly like a single
+  // element. e.g.  रचय पटाः रूप { वर्णः: नील } { "एक" "द्वि" }  → two blue
+  // <button>s labelled एक / द्वि.
+  constructGroup(spec) {
+    const { children, content, contentBind, ...shared } = spec;
+    const items = [];
+    const collect = c => {
+      if (c == null) return;
+      if (Array.isArray(c)) { c.forEach(collect); return; }
+      items.push(c);
+    };
+    (children || []).forEach(collect);
+    return items.map(child => __DB.construct({ ...shared, content: child }));
   },
 
   // ----- reactivity -----
@@ -685,6 +712,19 @@ function prapatram(vikalpaah) {
     i = (i + 1);
   }
   let samarpannapiiddakah = piiddakam((vi.समर्पणपाठः ?? "समर्पय"), function () {
+  let sarvevaidhaah = true;
+  let ka = 0;
+  while ((ka < kssetraanni.length)) {
+    if (kssetraanni[ka].वैधः) {
+      if ((kssetraanni[ka].वैधः() == false)) {
+        sarvevaidhaah = false;
+      }
+    }
+    ka = (ka + 1);
+  }
+  if ((sarvevaidhaah == false)) {
+    return null;
+  }
   let parinnaamah = {  };
   let ja = 0;
   while ((ja < kssetraanni.length)) {
@@ -853,6 +893,424 @@ return { "dannddaarekhaacitram": dannddaarekhaacitram, "rekhaacitram": rekhaacit
 })();
 
 const __mod_4 = (function () {
+function yogah(suucii) {
+  let sa = 0;
+  for (const x of suucii) {
+    sa = (sa + x);
+  }
+  return sa;
+}
+function mahattamam(suucii) {
+  if ((suucii.length == 0)) {
+    return null;
+  }
+  let ma = suucii[0];
+  for (const x of suucii) {
+    if ((x > ma)) {
+      ma = x;
+    }
+  }
+  return ma;
+}
+function nyuunatamam(suucii) {
+  if ((suucii.length == 0)) {
+    return null;
+  }
+  let ma = suucii[0];
+  for (const x of suucii) {
+    if ((x < ma)) {
+      ma = x;
+    }
+  }
+  return ma;
+}
+function gannaya(suucii, pariikssaa) {
+  let gannanaa = 0;
+  for (const x of suucii) {
+    if (pariikssaa(x)) {
+      gannanaa = (gannanaa + 1);
+    }
+  }
+  return gannanaa;
+}
+function advitiiyam(suucii) {
+  let phalam_ = [];
+  for (const x of suucii) {
+    if ((phalam_.includes(x) == false)) {
+      phalam_.push(x);
+    }
+  }
+  return phalam_;
+}
+function parisarah(aadih, antah) {
+  let phalam_ = [];
+  let i = aadih;
+  while ((i < antah)) {
+    phalam_.push(i);
+    i = (i + 1);
+  }
+  return phalam_;
+}
+function khannddashah(suucii, aakaarah) {
+  let phalam_ = [];
+  let i = 0;
+  while ((i < suucii.length)) {
+    phalam_.push(suucii.slice(i, (i + aakaarah)));
+    i = (i + aakaarah);
+  }
+  return phalam_;
+}
+function kramaya(suucii, tula) {
+  if ((suucii.length < 2)) {
+    return suucii.slice(0);
+  }
+  let madhyah = Math.floor((suucii.length / 2));
+  let vaamam = kramaya(suucii.slice(0, madhyah), tula);
+  let dakssinnam = kramaya(suucii.slice(madhyah), tula);
+  let phalam_ = [];
+  let i = 0;
+  let j = 0;
+  while (((i < vaamam.length) && (j < dakssinnam.length))) {
+    if ((tula(vaamam[i], dakssinnam[j]) <= 0)) {
+      phalam_.push(vaamam[i]);
+      i = (i + 1);
+    } else {
+      phalam_.push(dakssinnam[j]);
+      j = (j + 1);
+    }
+  }
+  while ((i < vaamam.length)) {
+    phalam_.push(vaamam[i]);
+    i = (i + 1);
+  }
+  while ((j < dakssinnam.length)) {
+    phalam_.push(dakssinnam[j]);
+    j = (j + 1);
+  }
+  return phalam_;
+}
+function prathamaakssarocca(paatthah) {
+  if ((paatthah.length == 0)) {
+    return paatthah;
+  }
+  return (paatthah.charAt(0).toUpperCase() + paatthah.slice(1));
+}
+function aavartaya(paatthah, sangkhyaa) {
+  let phalam_ = "";
+  let i = 0;
+  while ((i < sangkhyaa)) {
+    phalam_ = (phalam_ + paatthah);
+    i = (i + 1);
+  }
+  return phalam_;
+}
+function riktah(paatthah) {
+  if ((paatthah == null)) {
+    return true;
+  }
+  return (("" + paatthah).trim().length == 0);
+}
+function antarbhavati(paatthah, khannddah) {
+  return paatthah.includes(khannddah);
+}
+function vyutkramah(paatthah) {
+  return paatthah.split("").reverse().join("");
+}
+function vaamapuurannam(paatthah, lakssyam, puurakah) {
+  let phalam_ = ("" + paatthah);
+  while ((phalam_.length < lakssyam)) {
+    phalam_ = (puurakah + phalam_);
+  }
+  return phalam_;
+}
+
+return { "yogah": yogah, "mahattamam": mahattamam, "nyuunatamam": nyuunatamam, "gannaya": gannaya, "advitiiyam": advitiiyam, "parisarah": parisarah, "khannddashah": khannddashah, "kramaya": kramaya, "prathamaakssarocca": prathamaakssarocca, "aavartaya": aavartaya, "riktah": riktah, "antarbhavati": antarbhavati, "vyutkramah": vyutkramah, "vaamapuurannam": vaamapuurannam };
+})();
+
+const __mod_5 = (function () {
+const varnnapattah = __mod_0["varnnapattah"];
+const konnaah = __mod_0["konnaah"];
+const truttipaatthah = __mod_2["truttipaatthah"];
+const riktah = __mod_4["riktah"];
+
+
+
+function aavashyakah(muulyam) {
+  if (riktah(muulyam)) {
+    return __RT.err("आवश्यकम् (required)");
+  }
+  return __RT.ok(muulyam);
+}
+function nyuunadairghyam(na) {
+  return function (muulyam) {
+  if ((("" + muulyam).length < na)) {
+    return __RT.err((((("न्यूनतमम् " + na) + " अक्षराणि (min ") + na) + ")"));
+  }
+  return __RT.ok(muulyam);
+};
+}
+function adhikadairghyam(na) {
+  return function (muulyam) {
+  if ((("" + muulyam).length > na)) {
+    return __RT.err((((("अधिकतमम् " + na) + " अक्षराणि (max ") + na) + ")"));
+  }
+  return __RT.ok(muulyam);
+};
+}
+function samkhyaamaatram(muulyam) {
+  if (riktah(muulyam)) {
+    return __RT.ok(muulyam);
+  }
+  if (__RT.toNumber(("" + muulyam)).सफल) {
+    return __RT.ok(muulyam);
+  }
+  return __RT.err("अङ्कः आवश्यकः (must be a number)");
+}
+function vidyutpatram(muulyam) {
+  let sa = ("" + muulyam);
+  if (riktah(sa)) {
+    return __RT.ok(muulyam);
+  }
+  let kssah = sa.indexOf("@");
+  let binduh = sa.indexOf(".", kssah);
+  if ((((kssah > 0) && (binduh > kssah)) && (binduh < (sa.length - 1)))) {
+    return __RT.ok(muulyam);
+  }
+  return __RT.err("दुष्टं विद्युत्पत्रम् (invalid email)");
+}
+function pramaannaya(muulyam, niyamaah) {
+  let i = 0;
+  while ((i < niyamaah.length)) {
+    let phala = niyamaah[i](muulyam);
+    if ((phala.सफल == false)) {
+      return phala;
+    }
+    i = (i + 1);
+  }
+  return __RT.ok(muulyam);
+}
+function pramaannitakssetram(vikalpaah) {
+  let vi = (vikalpaah ?? {  });
+  let niyamaah = (vi.नियमाः ?? []);
+  let vapa = varnnapattah;
+  let naamapatranoddah = __DB.construct({ tag: "p", content: (vi.नामपत्रम् ?? ""), style: { "fontSize": "13px", "fontWeight": "bold", "color": vapa.पाठ्यमृदु, "margin": "0 0 4px 0" } });
+  let inaputtanoddah = __DB.construct({ tag: "input", style: { "width": "100%", "padding": "9px 12px", "fontSize": "14px", "border": ("1px solid " + vapa.सीमा), "borderRadius": konnaah.मध्यम, "backgroundColor": vapa.पृष्ठतलम्, "color": vapa.पाठ्यः } });
+  inaputtanoddah.setAttribute("placeholder", (vi.स्थानधारी ?? ""));
+  inaputtanoddah.setAttribute("type", (vi.प्रकारः ?? "text"));
+  if (vi.प्रारम्भः) {
+    inaputtanoddah.value = vi.प्रारम्भः;
+  }
+  let dossanoddah = truttipaatthah("");
+  dossanoddah.style.display = "none";
+  let antimavaidhah = false;
+  let jaanca = function () {
+  let phala = pramaannaya(inaputtanoddah.value, niyamaah);
+  if (phala.सफल) {
+    antimavaidhah = true;
+    dossanoddah.style.display = "none";
+    inaputtanoddah.style.border = ("1px solid " + vapa.सीमा);
+  } else {
+    antimavaidhah = false;
+    dossanoddah.textContent = phala.दोषः;
+    dossanoddah.style.display = "block";
+    inaputtanoddah.style.border = ("1px solid " + vapa.संकटः);
+  }
+  return antimavaidhah;
+};
+  __DB.listen(inaputtanoddah, "blur", function (gha) {
+  jaanca();
+});
+  __DB.listen(inaputtanoddah, "input", function (gha) {
+  if ((antimavaidhah == false)) {
+    jaanca();
+  }
+});
+  __DB.listen(inaputtanoddah, "focus", function (gha) {
+  if (antimavaidhah) {
+    inaputtanoddah.style.border = ("1px solid " + vapa.प्राथमिकः);
+  }
+});
+  let aavarannam = __DB.construct({ tag: "div", style: { "display": "flex", "flexDirection": "column", "gap": "4px" }, children: [naamapatranoddah, inaputtanoddah, dossanoddah] });
+  return { "अंशः": aavarannam, "इनपुटः": inaputtanoddah, "नाम": vi.नाम, "मूल्यम्": function () {
+  return inaputtanoddah.value;
+}, "वैधः": function () {
+  return jaanca();
+} };
+}
+
+return { "aavashyakah": aavashyakah, "nyuunadairghyam": nyuunadairghyam, "adhikadairghyam": adhikadairghyam, "samkhyaamaatram": samkhyaamaatram, "vidyutpatram": vidyutpatram, "pramaannaya": pramaannaya, "pramaannitakssetram": pramaannitakssetram };
+})();
+
+const __mod_6 = (function () {
+const varnnapattah = __mod_0["varnnapattah"];
+const varnnapraapti = __mod_0["varnnapraapti"];
+const konnaah = __mod_0["konnaah"];
+const antaraalah = __mod_0["antaraalah"];
+const chaayaah = __mod_0["chaayaah"];
+const kramaya = __mod_4["kramaya"];
+const khannddashah = __mod_4["khannddashah"];
+
+
+function saarannii(vikalpaah) {
+  let vi = (vikalpaah ?? {  });
+  let stambhaah = (vi.स्तम्भाः ?? []);
+  let dattaani = (vi.दत्तानि ?? []);
+  let prisstthamaanam = (vi.पृष्ठमानम् ?? dattaani.length);
+  if ((prisstthamaanam < 1)) {
+    prisstthamaanam = 1;
+  }
+  let vapa = varnnapattah;
+  let kramakunyjii = null;
+  let kramadik = 1;
+  let vartamaanaprissttham = 0;
+  let dehanoddah = __DB.el("tbody", {  });
+  let sthitinoddah = __DB.construct({ tag: "span", content: "", style: { "fontSize": "13px", "color": vapa.पाठ्यमृदु } });
+  let punahcitraya = function () {
+  let pamktayah = dattaani.slice(0);
+  if ((kramakunyjii != null)) {
+    pamktayah = kramaya(pamktayah, function (a, ba) {
+  let x = a[kramakunyjii];
+  let y = ba[kramakunyjii];
+  if ((x < y)) {
+    return (0 - kramadik);
+  }
+  if ((x > y)) {
+    return kramadik;
+  }
+  return 0;
+});
+  }
+  let prisstthaah = khannddashah(pamktayah, prisstthamaanam);
+  let prisstthasangkhyaa = prisstthaah.length;
+  if ((vartamaanaprissttham >= prisstthasangkhyaa)) {
+    vartamaanaprissttham = ((prisstthasangkhyaa == 0) ? 0 : (prisstthasangkhyaa - 1));
+  }
+  if ((vartamaanaprissttham < 0)) {
+    vartamaanaprissttham = 0;
+  }
+  let drishyaah = ((prisstthasangkhyaa == 0) ? [] : prisstthaah[vartamaanaprissttham]);
+  dehanoddah.innerHTML = "";
+  let ra = 0;
+  while ((ra < drishyaah.length)) {
+    let koshaah = [];
+    let sa = 0;
+    while ((sa < stambhaah.length)) {
+      koshaah.push(__DB.el("td", { "style": { "padding": "9px 12px", "borderBottom": ("1px solid " + vapa.सीमा), "fontSize": "14px", "color": vapa.पाठ्यः } }, ("" + drishyaah[ra][stambhaah[sa].कुञ्जी])));
+      sa = (sa + 1);
+    }
+    dehanoddah.append(__DB.el("tr", {  }, koshaah));
+    ra = (ra + 1);
+  }
+  let drishyamaanam = ((prisstthasangkhyaa == 0) ? 0 : (vartamaanaprissttham + 1));
+  sthitinoddah.textContent = (((((("पृष्ठम् " + drishyamaanam) + " / ") + prisstthasangkhyaa) + "  (") + dattaani.length) + " पङ्क्तयः)");
+};
+  let suucakaah = [];
+  let shiirssakoshaah = [];
+  let ka = 0;
+  while ((ka < stambhaah.length)) {
+    let suucakasuucii = ka;
+    let stambhah = stambhaah[ka];
+    let suucakanoddah = __DB.construct({ tag: "span", content: "", style: { "fontSize": "11px", "color": vapa.प्राथमिकः, "margin": "0 0 0 4px" } });
+    suucakaah.push(suucakanoddah);
+    let shiirssapaatthah = __DB.construct({ tag: "span", content: (stambhah.शीर्षकम् ?? stambhah.कुञ्जी), style: { "fontWeight": "bold" } });
+    let thapra_u949psa = { "style": { "padding": "10px 12px", "textAlign": "left", "fontSize": "13px", "color": vapa.पाठ्यमृदु, "borderBottom": ("2px solid " + vapa.सीमा), "whiteSpace": "nowrap" } };
+    if ((stambhah.क्रमणीयः == true)) {
+      thapra_u949psa.style.cursor = "pointer";
+      thapra_u949psa.onClick = function (gha) {
+  if ((kramakunyjii == stambhah.कुञ्जी)) {
+    kramadik = (0 - kramadik);
+  } else {
+    kramakunyjii = stambhah.कुञ्जी;
+    kramadik = 1;
+  }
+  let i = 0;
+  while ((i < suucakaah.length)) {
+    if ((i == suucakasuucii)) {
+      suucakaah[i].textContent = ((kramadik == 1) ? "▲" : "▼");
+    } else {
+      suucakaah[i].textContent = "";
+    }
+    i = (i + 1);
+  }
+  punahcitraya();
+};
+    }
+    shiirssakoshaah.push(__DB.el("th", thapra_u949psa, shiirssapaatthah, suucakanoddah));
+    ka = (ka + 1);
+  }
+  let shiirssanoddah = __DB.el("thead", {  }, __DB.el("tr", {  }, shiirssakoshaah));
+  let saaranniinoddah = __DB.el("table", { "style": { "width": "100%", "borderCollapse": "collapse", "fontFamily": "inherit" } }, shiirssanoddah, dehanoddah);
+  let baalakaah = [__DB.construct({ tag: "div", style: { "overflowX": "auto" }, children: [saaranniinoddah] })];
+  if ((dattaani.length > prisstthamaanam)) {
+    let puurvapiiddakah = prisstthapiiddakam("‹ पूर्वम्", function () {
+  vartamaanaprissttham = (vartamaanaprissttham - 1);
+  punahcitraya();
+});
+    let agrapiiddakah = prisstthapiiddakam("अग्रिमम् ›", function () {
+  vartamaanaprissttham = (vartamaanaprissttham + 1);
+  punahcitraya();
+});
+    let paadanoddah = __DB.construct({ tag: "div", style: { "display": "flex", "justifyContent": "space-between", "alignItems": "center", "margin": (antaraalah.लघु + " 0 0 0") }, children: [sthitinoddah, __DB.construct({ tag: "div", style: { "display": "flex", "gap": antaraalah.लघु }, children: [puurvapiiddakah, agrapiiddakah] })] });
+    baalakaah.push(paadanoddah);
+  }
+  punahcitraya();
+  return { "अंशः": __DB.construct({ tag: "div", style: { "display": "flex", "flexDirection": "column" }, children: [baalakaah] }) };
+}
+function prisstthapiiddakam(paatthah, hastakah) {
+  let vapa = varnnapattah;
+  return __DB.construct({ tag: "button", content: paatthah, event: "click", handler: function (gha) {
+  hastakah();
+}, style: { "backgroundColor": "transparent", "border": ("1px solid " + vapa.सीमा), "borderRadius": konnaah.लघु, "padding": "6px 12px", "fontSize": "13px", "color": vapa.पाठ्यः, "cursor": "pointer" } });
+}
+let _suucanaapaatram = null;
+function paatramaanaya() {
+  if ((_suucanaapaatram == null)) {
+    _suucanaapaatram = __DB.construct({ tag: "div", style: { "position": "fixed", "top": "16px", "right": "16px", "display": "flex", "flexDirection": "column", "gap": "10px", "zIndex": "9999" } });
+    __DB.mount(_suucanaapaatram);
+  }
+  return _suucanaapaatram;
+}
+function kssannikasuucanaa(paatthah, vargah, aayuh) {
+  let vapa = varnnapattah;
+  let ranggaah = varnnapraapti((vargah ?? "सूचना"));
+  let paatram = paatramaanaya();
+  let aayurmaanam = (aayuh ?? 3000);
+  let ttostta = __DB.construct({ tag: "span", content: paatthah, style: { "backgroundColor": vapa.पृष्ठतलम्, "color": vapa.पाठ्यः, "padding": "12px 16px", "borderRadius": konnaah.मध्यम, "fontSize": "14px", "fontWeight": "bold", "width": "260px", "display": "block", "cursor": "pointer" } });
+  ttostta.style.boxShadow = chaayaah.मध्यम;
+  ttostta.style.borderLeft = ("4px solid " + ranggaah.मुख्यः);
+  ttostta.style.opacity = "0";
+  ttostta.style.transform = "translateX(20px)";
+  ttostta.style.transition = "opacity 0.2s ease, transform 0.2s ease";
+  paatram.append(ttostta);
+  let aagamanah = __DB.interval(function () {
+  ttostta.style.opacity = "1";
+  ttostta.style.transform = "translateX(0px)";
+  __DB.clearTimer(aagamanah);
+}, 20);
+  let vilayanam = function () {
+  ttostta.style.opacity = "0";
+  ttostta.style.transform = "translateX(20px)";
+  let nisskaasanah = __DB.interval(function () {
+  if (ttostta.parentNode) {
+    ttostta.parentNode.removeChild(ttostta);
+  }
+  __DB.clearTimer(nisskaasanah);
+}, 220);
+};
+  __DB.listen(ttostta, "click", function (gha) {
+  vilayanam();
+});
+  let aayusskaalah = __DB.interval(function () {
+  vilayanam();
+  __DB.clearTimer(aayusskaalah);
+}, aayurmaanam);
+  return { "अंशः": ttostta, "बन्द": vilayanam };
+}
+
+return { "saarannii": saarannii, "kssannikasuucanaa": kssannikasuucanaa };
+})();
+
+const __mod_7 = (function () {
 const varnnapattah = __mod_0["varnnapattah"];
 const prakaashah = __mod_0["prakaashah"];
 const raatrih = __mod_0["raatrih"];
@@ -888,6 +1346,32 @@ const dannddaarekhaacitram = __mod_3["dannddaarekhaacitram"];
 const rekhaacitram = __mod_3["rekhaacitram"];
 const vrittacitram = __mod_3["vrittacitram"];
 const saamkhyikaakaarddam = __mod_3["saamkhyikaakaarddam"];
+const yogah = __mod_4["yogah"];
+const mahattamam = __mod_4["mahattamam"];
+const nyuunatamam = __mod_4["nyuunatamam"];
+const gannaya = __mod_4["gannaya"];
+const advitiiyam = __mod_4["advitiiyam"];
+const parisarah = __mod_4["parisarah"];
+const khannddashah = __mod_4["khannddashah"];
+const kramaya = __mod_4["kramaya"];
+const prathamaakssarocca = __mod_4["prathamaakssarocca"];
+const aavartaya = __mod_4["aavartaya"];
+const riktah = __mod_4["riktah"];
+const antarbhavati = __mod_4["antarbhavati"];
+const vyutkramah = __mod_4["vyutkramah"];
+const vaamapuurannam = __mod_4["vaamapuurannam"];
+const aavashyakah = __mod_5["aavashyakah"];
+const nyuunadairghyam = __mod_5["nyuunadairghyam"];
+const adhikadairghyam = __mod_5["adhikadairghyam"];
+const samkhyaamaatram = __mod_5["samkhyaamaatram"];
+const vidyutpatram = __mod_5["vidyutpatram"];
+const pramaannaya = __mod_5["pramaannaya"];
+const pramaannitakssetram = __mod_5["pramaannitakssetram"];
+const saarannii = __mod_6["saarannii"];
+const kssannikasuucanaa = __mod_6["kssannikasuucanaa"];
+
+
+
 
 
 
@@ -895,11 +1379,13 @@ const saamkhyikaakaarddam = __mod_3["saamkhyikaakaarddam"];
 
 return {  };
 })();
-window.Devarupa = Object.assign({}, __mod_0, __mod_1, __mod_2, __mod_3, __mod_4);
+window.Devarupa = Object.assign({}, __mod_0, __mod_1, __mod_2, __mod_3, __mod_4, __mod_5, __mod_6, __mod_7);
 (function () {
-  var asciiKeys = Object.keys(window.Devarupa);
-  var devanagari = ["वर्णपटः","प्रकाशः","रात्रिः","स्वर्णिमः","हिमः","विषयलागू","अन्तरालः","कोणाः","छायाः","अक्षरकुलम्","वर्णप्राप्ति","पीडकम्","चिह्नम्","पत्रकम्","सूचनापट्टी","आदानक्षेत्रम्","परिवर्तकम्","प्रगतिपट्टी","अवतारः","विभाजकः","चक्रिका","टैबसमूहः","विधिवातायनम्","उपकरणसूचना","बहुपाठक्षेत्रम्","चयनक्षेत्रम्","अङ्कितपेटिका","विकल्पचक्रम्","सर्पिणी","त्रुटिपाठः","प्रपत्रम्","दण्डारेखाचित्रम्","रेखाचित्रम्","वृत्तचित्रम्","सांख्यिकाकार्डम्"];
-  for (var i = 0; i < devanagari.length && i < asciiKeys.length; i++) {
-    window.Devarupa[devanagari[i]] = window.Devarupa[asciiKeys[i]];
-  }
+  var alias = {"वर्णपटः":"varnnapattah","प्रकाशः":"prakaashah","रात्रिः":"raatrih","स्वर्णिमः":"svarnnimah","हिमः":"himah","विषयलागू":"vissayalaaguu","अन्तरालः":"antaraalah","कोणाः":"konnaah","छायाः":"chaayaah","अक्षरकुलम्":"akssarakulam","वर्णप्राप्ति":"varnnapraapti","दण्डारेखाचित्रम्":"dannddaarekhaacitram","रेखाचित्रम्":"rekhaacitram","वृत्तचित्रम्":"vrittacitram","सांख्यिकाकार्डम्":"saamkhyikaakaarddam","योगः":"yogah","महत्तमम्":"mahattamam","न्यूनतमम्":"nyuunatamam","गणय":"gannaya","अद्वितीयम्":"advitiiyam","परिसरः":"parisarah","खण्डशः":"khannddashah","क्रमय":"kramaya","प्रथमाक्षरोच्च":"prathamaakssarocca","आवर्तय":"aavartaya","रिक्तः":"riktah","अन्तर्भवति":"antarbhavati","व्युत्क्रमः":"vyutkramah","वामपूरणम्":"vaamapuurannam","पीडकम्":"piiddakam","चिह्नम्":"cihnam","पत्रकम्":"patrakam","सूचनापट्टी":"suucanaapattttii","आदानक्षेत्रम्":"aadaanakssetram","परिवर्तकम्":"parivartakam","प्रगतिपट्टी":"pragatipattttii","अवतारः":"avataarah","विभाजकः":"vibhaajakah","चक्रिका":"cakrikaa","टैबसमूहः":"ttaibasamuuhah","विधिवातायनम्":"vidhivaataayanam","उपकरणसूचना":"upakarannasuucanaa","बहुपाठक्षेत्रम्":"bahupaatthakssetram","चयनक्षेत्रम्":"cayanakssetram","अङ्कितपेटिका":"angkitapettikaa","विकल्पचक्रम्":"vikalpacakram","सर्पिणी":"sarpinnii","त्रुटिपाठः":"truttipaatthah","प्रपत्रम्":"prapatram","आवश्यकः":"aavashyakah","न्यूनदैर्घ्यम्":"nyuunadairghyam","अधिकदैर्घ्यम्":"adhikadairghyam","संख्यामात्रम्":"samkhyaamaatram","विद्युत्पत्रम्":"vidyutpatram","प्रमाणय":"pramaannaya","प्रमाणितक्षेत्रम्":"pramaannitakssetram","सारणी":"saarannii","क्षणिकसूचना":"kssannikasuucanaa"};
+  Object.keys(alias).forEach(function (deva) {
+    var ascii = alias[deva];
+    if (Object.prototype.hasOwnProperty.call(window.Devarupa, ascii)) {
+      window.Devarupa[deva] = window.Devarupa[ascii];
+    }
+  });
 })();
